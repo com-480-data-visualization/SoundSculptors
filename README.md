@@ -50,6 +50,7 @@ TODO
 > - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.
 
 Others have already created very nice visualizations of such data, including correlation graphs of many songs (e.g. are loud songs more energetic). 
+Example: https://towardsdatascience.com/country-wise-visual-analysis-of-music-taste-using-spotify-api-seaborn-in-python-77f5b749b421
 Our approach is original because we want to look at how different countries listen to music, and we want to do it in an interactive way, with live updates from the spotify API instead of one fixed scrape. 
 
 ## Milestone 2 (26th April, 5pm)
