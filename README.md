@@ -27,7 +27,7 @@ We are using data from spotify's API. This gives access to things like artist po
 We are also using this dataset from Kaggle: https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023
 
 ### Problematic
-In our visualization, we are trying to show global music preferences, emphasizing the diversity within and between countries, how countries' music preferences are related and change over time. Additionally, we may try to make visualizations for how artists and listening preferences of indivuduals are related. Adding to this comprehensive visualization, there will also be a feature that personalizes the user experience by incorporating individuals' music preferences into the world map, providing insights into how their personal tastes fit within the broader context of worldwide music preferences.
+In our visualization, we are trying to show global music preferences, emphasizing the diversity within and between countries, how countries' music preferences are related and change over time. Adding to this comprehensive visualization, there will also be a feature that personalizes the user experience by incorporating individuals' music preferences into the world map, providing insights into how their personal tastes fit within the broader context of worldwide music preferences.
 
 
 The **motivation** is a desire to understand and illustrate the diversity of global music cultures, to uncover the threads that connect different peoples through music  by leveraging global listening patterns.
