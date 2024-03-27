@@ -47,7 +47,7 @@ TODO
 
 While generating the idea we have encountered several projects already related to the world music map.
 
- - Spotify and open-source platform CARTO have created the [“Musical Map of the World”](https://spotifymaps.github.io/musicalcities/). The creative visualization with an interactive map is making use of Spotify´s data from cities all over the world to give them their special “musical character”
+ - Spotify and open-source platform CARTO have created the [“Musical Map of the World”]([https://spotifymaps.github.io/musicalcities/](https://community.spotify.com/t5/App-Features/Spotify-s-NEW-Musical-Map-of-the-World-2-0/td-p/1519929)). The creative visualization with an interactive map is making use of Spotify´s data from cities all over the world to give them their special “musical character”
 
 The Musical Map of the World has music aggregation in world map, but we cannot see the preferences which change over time and visualization user own preferences.
 
