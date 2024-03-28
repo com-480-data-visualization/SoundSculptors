@@ -41,7 +41,12 @@ The **target audience** is planned to include people who are interested in music
 > Pre-processing of the data set you chose
 > - Show some basic statistics and get insights about the data
 
-TODO
+We are exploring two different datasets. For the first, you will find the data exploration in milestone1.ipynb. This is a dataset containing popular songs of 2023 accross different platforms, including spotify, geezer, and apple music. The second dataset we will look at is not fixed, and thus we are not reporting statistics about it. We are using data from the Spotify API. We will be using spotipy in order to gain access to the data. Here, we list some API functions we believe to be relevant to our project. Additionally, we implemented a small flask server, which we use to test the outputs of the API. The provided requirements.txt gives all the necessary installations to run it. 
+Functions:
+- audio_features: returns the audio features of a song (e.g. energy, danceability)
+- category_playlists: returns playlists for spotify-created categories. Especially useful since one of these is categories top charts, with the most popular songs at the moment, with a region selector. 
+- current_user_top_tracks: the most listened songs of the current user. we will be able to tell what the user likes based on their favorite songs.
+- country_codes: all of the countries spotify officially supports. will be useful to make the right API calls. 
  
 ### Related work
 
