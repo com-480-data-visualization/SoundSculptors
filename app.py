@@ -3,11 +3,14 @@ from flask import Flask, session, request, redirect
 from flask_session import Session
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
+import country_converter as coco
+
+cc = coco.CountryConverter()
+
 app = Flask(__name__)
 
 
-os.environ['SPOTIPY_CLIENT_ID'] = 'your id here'
-os.environ['SPOTIPY_CLIENT_SECRET'] = 'your secret here' #or as environment variables
+
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost:5000'
@@ -46,22 +49,39 @@ def sign_out():
     session.pop("token_info", None)
     return redirect('/')
 
-@app.route('/popular')
-def country_select():
-    return """
-    <input type="dropdown"/>
-    """
-@app.route('/popular', methods="[POST]")
+   
+@app.route('/popular', methods=["GET", "POST"])
 def popular():
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
-
     spotify = spotipy.Spotify(auth_manager=auth_manager)
-    top_songs =  spotify.category_playlists("0JQ5DAudkNjCgYMM0TZXDw")["playlists"]["items"][0]["uri"]
+    countries = spotify.country_codes
+    countries = "\n".join([f"<option value={x}>{cc.convert(x, to="name_short")} </option>" for x in countries])
+    form =  f"""
+        </form>
+     <form id="country" method="POST">
+
+   <label for="countries">Choose a country name:</label> 
+    <select name="country" id="country" form="country"> 
+        {countries}
+    </select>
+        <input form=country type="submit">
+    """
+    if len(request.form) == 0:
+        return form
+    country_code = request.form["country"]
+    country = cc.convert(country_code, to="name_short")
+
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    print(country_code, list(filter(lambda x: "charts" in x['name'].lower(),spotify.categories(country=country_code, locale="en_"+country_code)["categories"]["items"]))[0]['id'])
+    # print(country_code, [x["name"] + " " + x["id"] for x in spotify.categories(country="fr", locale="en_fr")["categories"]["items"]])
+    top_songs =  spotify.category_playlists("0JQ5DAudkNjCgYMM0TZXDw", country=country_code)["playlists"]["items"][0]["uri"]
     # return spotify.playlist_tracks(top_songs)["items"]
-    return [x["track"]["name"] + " by " + x['track']["artists"][0]["name"]  for x in spotify.playlist_tracks(top_songs)["items"]]
+    return form +f"<h1>Most popular hits in: {country}</h1> <ul>" +"\n".join(["<li>"+x["track"]["name"] + " by " + x['track']["artists"][0]["name"] + "</li>" for x in spotify.playlist_tracks(top_songs)["items"]]) + "</ul>"
 
 
 @app.route('/find_artist')
@@ -80,7 +100,6 @@ def artist_post():
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     artist_id = spotify.search(text,type='artist', limit=1)['artists']['items'][0]['uri']
-    print(artist_id)
     tracks = spotify.artist_albums(artist_id)
     answer = "<ul>"
     for track in tracks['items'][:10]:

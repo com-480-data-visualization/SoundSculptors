@@ -46,7 +46,7 @@ Functions:
 - audio_features: returns the audio features of a song (e.g. energy, danceability)
 - category_playlists: returns playlists for spotify-created categories. Especially useful since one of these is categories top charts, with the most popular songs at the moment, with a region selector. 
 - current_user_top_tracks: the most listened songs of the current user. we will be able to tell what the user likes based on their favorite songs.
-- country_codes: all of the countries spotify officially supports. will be useful to make the right API calls. 
+- country_codes: all of the countries spotify officially supports. Will be useful to make the right API calls. 
  
 ### Related work
 
