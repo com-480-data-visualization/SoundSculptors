@@ -16,8 +16,9 @@ The goal of our project is to show music preferences around the world and to off
 
 ### Dataset
 
-We are using data from spotify's API. This gives access to things like artist popularity per country, song characteristics, and song popularity. 
-We are also using this fixed dataset from Kaggle: https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023
+In our project, we are using two different datasets.
+The **first** one is this fixed dataset from Kaggle: https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023
+The **second** one is from [Spotify's API](https://developer.spotify.com/documentation/web-api). This gives access to things like artist popularity per country, song characteristics, and song popularity. 
 
 ### Problematic
 
@@ -43,11 +44,12 @@ Functions:
  - create a spotify developer account and set the environment variables SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET to their respective values
  - run `pip install -r requirements.txt`
  - run `flask run`
+ 
 ### Related work
 
 While coming up with the idea we have encountered some projects already related to the world music map, this is one of them:
 
- - Spotify and open-source platform CARTO have created the [“Musical Map of the World”](https://community.spotify.com/t5/App-Features/Spotify-s-NEW-Musical-Map-of-the-World-2-0/td-p/1519929). This creative visualization with an interactive map is making use of Spotify´s data from cities all over the world to give them their special “musical character”.
+ Spotify and open-source platform CARTO have created the [“Musical Map of the World”](https://community.spotify.com/t5/App-Features/Spotify-s-NEW-Musical-Map-of-the-World-2-0/td-p/1519929). This creative visualization with an interactive map is making use of Spotify´s data from cities all over the world to give them their special “musical character”.
 
 The Musical Map of the World has music aggregation in world map, but we cannot see the preferences which change over time and we cannot visualize the user's own preferences.
 
