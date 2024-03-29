@@ -76,12 +76,16 @@ def popular():
 
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
-
-    print(country_code, list(filter(lambda x: "charts" in x['name'].lower(),spotify.categories(country=country_code, locale="en_"+country_code)["categories"]["items"]))[0]['id'])
+    
+    playlist = spotify.search("Top 50 - " + country, limit=1, type="playlist")
+    top_songs = playlist['playlists']['items'][0]['uri']
+    # top_songs = spotify.playlist_tracks(top_songs_uri)
     # print(country_code, [x["name"] + " " + x["id"] for x in spotify.categories(country="fr", locale="en_fr")["categories"]["items"]])
-    top_songs =  spotify.category_playlists("0JQ5DAudkNjCgYMM0TZXDw", country=country_code)["playlists"]["items"][0]["uri"]
+    # top_songs =  spotify.category_playlists("0JQ5DAudkNjCgYMM0TZXDw", country=country_code)["playlists"]["items"][0]["uri"]
     # return spotify.playlist_tracks(top_songs)["items"]
-    return form +f"<h1>Most popular hits in: {country}</h1> <ul>" +"\n".join(["<li>"+x["track"]["name"] + " by " + x['track']["artists"][0]["name"] + "</li>" for x in spotify.playlist_tracks(top_songs)["items"]]) + "</ul>"
+    songs = spotify.playlist_tracks(top_songs)
+    print(songs)
+    return form +f"<h1>Most popular hits in: {country}</h1> <ul>" +"\n".join(["<li>"+x["track"]["name"] + " by " + x['track']["artists"][0]["name"] + "</li>" for x in songs["items"]]) + "</ul>"
 
 
 @app.route('/find_artist')
