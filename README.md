@@ -37,7 +37,11 @@ Functions:
 - `category_playlists`: returns playlists for spotify-created categories. Especially useful since one of these is categories top charts, with the most popular songs at the moment, with a region selector. 
 - `current_user_top_tracks`: the most listened songs of the current user. We will be able to tell what the user likes based on their favorite songs.
 - `country_codes`: all of the countries Spotify officially supports. This will be useful to make the right API calls. 
- 
+
+ In order to run the flask app:
+ - create a spotify developer account and set the environment variables SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET to their respective values
+ - run `pip install -r requirements.txt`
+ - run `flask run`
 ### Related work
 
 While generating the idea we have encountered several projects already related to the world music map.
