@@ -58,7 +58,11 @@ def popular():
         return redirect('/')
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     countries = spotify.country_codes
-    countries = "\n".join([f"<option value={x}>{cc.convert(x, to="name_short")} </option>" for x in countries])
+    countries.append("Global")
+    if "country" in request.form:
+        countries = "\n".join([f"<option {"selected" if request.form["country"]==x else ""} value={x}>{cc.convert(x, to="name_short", not_found="Global")} </option>" for x in countries])
+    else:
+        countries = "\n".join([f"<option value={x}>{cc.convert(x, to="name_short")} </option>" for x in countries])
     form =  f"""
         </form>
      <form id="country" method="POST">
@@ -72,11 +76,11 @@ def popular():
     if len(request.form) == 0:
         return form
     country_code = request.form["country"]
-    country = cc.convert(country_code, to="name_short")
+    country = cc.convert(country_code, to="name_short", not_found="Global")
 
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
-    
+    print(country)
     playlist = spotify.search("Top 50 - " + country, limit=1, type="playlist")
     top_songs = playlist['playlists']['items'][0]['uri']
     # top_songs = spotify.playlist_tracks(top_songs_uri)
@@ -84,7 +88,6 @@ def popular():
     # top_songs =  spotify.category_playlists("0JQ5DAudkNjCgYMM0TZXDw", country=country_code)["playlists"]["items"][0]["uri"]
     # return spotify.playlist_tracks(top_songs)["items"]
     songs = spotify.playlist_tracks(top_songs)
-    print(songs)
     return form +f"<h1>Most popular hits in: {country}</h1> <ul>" +"\n".join(["<li>"+x["track"]["name"] + " by " + x['track']["artists"][0]["name"] + "</li>" for x in songs["items"]]) + "</ul>"
 
 
