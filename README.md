@@ -17,7 +17,7 @@ The goal of our project is to show music preferences around the world and to off
 ### Dataset
 
 In our project, we are using two different datasets.
-The **first** one is this fixed dataset from Kaggle: https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023
+The **first** one is this fixed dataset from Kaggle: https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023.
 The **second** one is from [Spotify's API](https://developer.spotify.com/documentation/web-api). This gives access to things like artist popularity per country, song characteristics, and song popularity. 
 
 ### Problematic
@@ -44,7 +44,7 @@ Functions:
  - create a spotify developer account and set the environment variables SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET to their respective values
  - run `pip install -r requirements.txt`
  - run `flask run`
- 
+
 ### Related work
 
 While coming up with the idea we have encountered some projects already related to the world music map, this is one of them:
