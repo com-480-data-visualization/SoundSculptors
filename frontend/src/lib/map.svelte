@@ -20,8 +20,8 @@
     let latitude = 0;
     let longitude = 0;
     
-	const width = 1000//window.innerWidth - 10;
-	const height = 1200//window.innerHeight - 20;
+	const width = 1500//window.innerWidth - 10;
+	const height = 1500//window.innerHeight - 20;
 	//$: console.log({ selected })
 		if (navigator.geolocation) {
 	navigator.geolocation.getCurrentPosition(function(position) {
@@ -52,7 +52,7 @@
 	})
 </script>
 
-<svg viewBox="0 0 {width} {height}">
+<svg viewBox="-60 -100 {width} {height}">
 	<!-- State shapes -->
 	<g fill="white" stroke="black">
 		{#each countries as feature, i}

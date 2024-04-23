@@ -232,13 +232,13 @@ export const iso2CodesByCountryName = {
     ukraine: 'UA',
     'united arab emirates': 'AE',
     'united kingdom': 'GB',
-    'united states': 'US',
+    'united states of america': 'US',
     'united states outlying islands': 'UM',
     uruguay: 'UY',
     uzbekistan: 'UZ',
     vanuatu: 'VU',
     venezuela: 'VE',
-    'viet nam': 'VN',
+    'vietnam': 'VN',
     'virgin islands, british': 'VG',
     'virgin islands, u.s.': 'VI',
     'wallis and futuna': 'WF',
@@ -247,6 +247,6 @@ export const iso2CodesByCountryName = {
     zambia: 'ZM',
     zimbabwe: 'ZW',
     'north macedonia': 'MK',
-    'češka': 'CZ',
+    'czechia': 'CZ',
   };
 
