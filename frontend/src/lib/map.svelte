@@ -75,7 +75,7 @@
 <!-- 	<path d={path(mesh)} fill="none" stroke="black" /> -->
 		
 	{#if selected}
-		<path d={path(selected)} fill="hsl(0 0% 50% / 20%)" stroke="black" stroke-width={2} />
+		<path d={path(selected)} fill="rgb(0,100,0)" stroke="black" stroke-width={2} />
 	{/if}
 		
 	<!-- {#each countries as feature, i}

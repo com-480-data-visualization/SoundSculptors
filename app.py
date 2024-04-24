@@ -30,14 +30,16 @@ def get_top_tracks_playlist_id(country_name):
         playlist_id = playlist['playlists']['items'][0]['uri']
         return playlist_id
     else:
-        raise Exception("Top tracks playlist not found for the country")
+        raise Exception("Top tracks playlist not found for the country " + country_name)
 
 country_top_sound_ids = {}
-
+markets = sp.available_markets()['markets']
 # Initialize country_top_sound_ids dictionary with empty lists for all country codes
-for country_code in sp.country_codes:
-    country_top_sound_ids[country_code] = get_top_tracks_playlist_id(coco.convert(country_code, to="name_short", not_found="Global"))
-
+for country_code in markets:
+    try:
+        country_top_sound_ids[country_code] = get_top_tracks_playlist_id(coco.convert(country_code, to="name_short", not_found="Global"))
+    except: 
+        print("can't find country ", country_code)
 print("Init top tracks done!")
 @app.route('/music_similarity', methods=['GET'])
 def get_music_similarity():
@@ -71,7 +73,7 @@ def calculate_similarity(country_code):
             try:
                 # Get top tracks playlist ID for another country
                 other_country_name = coco.convert(cc, to="name_short", not_found="Global")
-                other_playlist_id = get_top_tracks_playlist_id(other_country_name)
+                other_playlist_id = country_top_sound_ids[cc]
 
                 # Get tracks from both playlists
                 country_tracks = set(current_country_top_sound_ids)
