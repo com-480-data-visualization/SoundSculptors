@@ -63,10 +63,13 @@
 	<g fill="white" stroke="black">
 		{#each countries as feature, i}
             {#if iso2CodesByCountryName[feature.properties.name.toLowerCase()] in colors}
-			<path d={path(feature)} on:click={() => selected = feature} style={`fill:rgb(${255*(colors[iso2CodesByCountryName[feature.properties.name.toLowerCase()]]-min)/(max-min)}, 0, 0);`}  />
+				<path d={path(feature)} on:click={() => selected = feature} style={`fill:rgb(${255*(colors[iso2CodesByCountryName[feature.properties.name.toLowerCase()]]-min)/(max-min)}, 0, 200);`}  />
 				<!-- in:draw={{ delay: i * 50, duration: 1000 }} //use later this is cool--> 
-            {:else}
-            <path d={path(feature)} on:click={() => selected = feature} class="state" />
+            {:else if markets.includes(iso2CodesByCountryName[feature.properties.name.toLowerCase()])}
+				<path d={path(feature)} on:click={() => selected = feature} class="state"  />
+
+			{:else}
+            <path d={path(feature)}/>
             {/if}
 		{/each}
 	</g>
@@ -75,7 +78,7 @@
 <!-- 	<path d={path(mesh)} fill="none" stroke="black" /> -->
 		
 	{#if selected}
-		<path d={path(selected)} fill="hsl(0 0% 50% / 20%)" stroke="black" stroke-width={2} />
+		<path d={path(selected)} fill="rgb(0,100,0)" stroke="black" stroke-width={2} />
 	{/if}
 		
 	<!-- {#each countries as feature, i}
@@ -92,6 +95,9 @@
 <div class="selectedName">{"Countries with most similar music tastes to: "+ selected?.properties.name ?? ''}</div>
 	
 <style>
+	.state{
+		fill: lightgreen;
+	}
 	.state:hover {
 		fill: hsl(0 0% 50% / 20%);
 	}
@@ -106,5 +112,13 @@
 		text-align: center;
 		margin-top: 8px;
 		font-size: 1.5rem;
+	}
+	.tooltip {
+		border: 1px solid #ddd;
+		box-shadow: 1px 1px 1px #ddd;
+		background: white;
+		border-radius: 4px;
+		padding: 4px;
+		position: absolute;
 	}
 </style>

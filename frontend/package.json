@@ -11,6 +11,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "svelte": "^4.2.12",
+    "svelte-loading-spinners": "^0.3.6",
     "vite": "^5.2.0"
   },
   "dependencies": {
