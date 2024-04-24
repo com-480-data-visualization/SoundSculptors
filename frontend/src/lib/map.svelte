@@ -26,7 +26,7 @@
     let latitude = 0;
     let longitude = 0;
     
-	const width = 1500//window.innerWidth - 10;
+	const width = 1000//window.innerWidth - 10;
 	const height = 550//window.innerHeight - 20;
 	//$: console.log({ selected })
 		if (navigator.geolocation) {
@@ -43,7 +43,7 @@
 	].map(p => projection([p.long, p.lat]))
 	
 	onMount(async () => {
-		const us = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
+		const us = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
 			.then(d => d.json()).catch(err => console.log(err))
 		console.log({ us })
 		
@@ -58,12 +58,12 @@
 	})
 </script>
 
-<svg viewBox="-60 -100 {width} {height}">
+<svg viewBox="-25 -100 {width} {height}">
 	<!-- State shapes -->
 	<g fill="white" stroke="black">
 		{#each countries as feature, i}
             {#if iso2CodesByCountryName[feature.properties.name.toLowerCase()] in colors}
-				<path d={path(feature)} on:click={() => selected = feature} style={`fill:rgb(${255*(colors[iso2CodesByCountryName[feature.properties.name.toLowerCase()]]-min)/(max-min)}, 0, 200);`}  />
+				<path d={path(feature)} on:click={() => selected = feature} style={`fill:${colors[iso2CodesByCountryName[feature.properties.name.toLowerCase()]]};`}  />
 				<!-- in:draw={{ delay: i * 50, duration: 1000 }} //use later this is cool--> 
             {:else if markets.includes(iso2CodesByCountryName[feature.properties.name.toLowerCase()])}
 				<path d={path(feature)} on:click={() => selected = feature} class="state"  />
@@ -92,7 +92,7 @@
 	{/each}
 </svg>
 
-<div class="selectedName">{"Countries with most similar music tastes to: "+ selected?.properties.name ?? ''}</div>
+<!-- <div class="selectedName">{"Countries with most similar music tastes to: "+ selected?.properties.name ?? ''}</div> -->
 	
 <style>
 	.state{
@@ -101,12 +101,7 @@
 	.state:hover {
 		fill: hsl(0 0% 50% / 20%);
 	}
-    .valid-state {
-		fill: hsla(104, 83%, 43%, 0.2);
-	}
-	.valid-state:hover {
-		fill: hsla(104, 80%, 62%, 0.2);
-	}
+
 	
 	.selectedName {
 		text-align: center;
