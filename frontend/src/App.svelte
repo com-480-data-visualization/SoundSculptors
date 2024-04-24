@@ -61,8 +61,7 @@ let view = "country-similarity"
                 </select>
             </div>
         {:else if view == "radar"}
-            <Radar />
-          <!-- <Map bind:selected /> -->
+            <Map bind:selected /> 
         {:else if view == "listen-in"}
             <Map bind:selected  />
         {/if}
@@ -72,6 +71,7 @@ let view = "country-similarity"
         {#if view == "country-similarity"}
             <h1>top 50 songs in {selected?.properties.name.toLowerCase() ?? "globally"}:</h1>
         {:else if view == "radar"}
+            <!-- <h1>radar</h1> -->
             <Radar />
         {:else if view == "listen-in"}
             <h1>listen in</h1>
