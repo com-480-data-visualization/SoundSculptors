@@ -10,22 +10,28 @@ const BASE_URL = "http://127.0.0.1:5000"
 $: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
 $: step = 1 / size;
 let size = 100;
-let interpolator = d3chromatic.interpolateTurbo
+let interpolator = d3chromatic.interpolateSpectral
 $: colors = Array.from({ length: size }, (_, i) => interpolator(i * step));
 
 let selected;
 let colorMap = {}
-let loading = true
-let setLoading = x => loading = true
-$: fetch(BASE_URL+"/music_similarity?country_code="+
-    iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
-    .then(x => x.json()).then(x => {
-        colorMap = x; 
-        Object.keys(colorMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * colorMap[key])] })
-        loading=false;
-    })
-    .catch(err => console.log(err))
-$: setLoading(selected)
+let loading = false
+let fetcher = (selected) => {
+    if (selected!=null && selected != undefined) { 
+        console.log("FETCHING")
+        loading = true;
+        fetch(BASE_URL+"/music_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
+        .then(x => {
+            console.log("LOADED")
+            colorMap = x; 
+            Object.keys(colorMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * colorMap[key])] })
+            loading=false;
+        }).catch(err => console.log(err))
+    }
+}
+$: fetcher(selected)
+
+
 
 let view = "country-similarity"
 
