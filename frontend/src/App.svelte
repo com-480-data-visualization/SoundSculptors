@@ -12,7 +12,6 @@ $: step = 1 / size;
 let size = 100;
 let interpolator = d3chromatic.interpolateTurbo
 $: colors = Array.from({ length: size }, (_, i) => interpolator(i * step));
-$: console.log(colorMap)
 
 let selected;
 let colorMap = {}
@@ -22,7 +21,7 @@ $: fetch(BASE_URL+"/music_similarity?country_code="+
     iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
     .then(x => x.json()).then(x => {
         colorMap = x; 
-        Object.keys(colorMap).forEach(key => colorMap[key] = colors[size * colorMap[key]])
+        Object.keys(colorMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * colorMap[key])] })
         loading=false;
     })
     .catch(err => console.log(err))
@@ -80,8 +79,9 @@ let view = "country-similarity"
     .map {
         /* background-color: green; */
         /* width: wrap-content; */
-        min-height: 30rem;
-        min-width: 80rem;
+        /* min-height: 40rem; */
+        min-width: 60rem;
+        /* max-width: 8000rem; */ 
     }
     .container {
         display:flex;

@@ -26,7 +26,7 @@
     let latitude = 0;
     let longitude = 0;
     
-	const width = 1500//window.innerWidth - 10;
+	const width = 1000//window.innerWidth - 10;
 	const height = 550//window.innerHeight - 20;
 	//$: console.log({ selected })
 		if (navigator.geolocation) {
@@ -43,7 +43,7 @@
 	].map(p => projection([p.long, p.lat]))
 	
 	onMount(async () => {
-		const us = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
+		const us = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
 			.then(d => d.json()).catch(err => console.log(err))
 		console.log({ us })
 		
@@ -58,7 +58,7 @@
 	})
 </script>
 
-<svg viewBox="-60 -100 {width} {height}">
+<svg viewBox="-25 -100 {width} {height}">
 	<!-- State shapes -->
 	<g fill="white" stroke="black">
 		{#each countries as feature, i}
