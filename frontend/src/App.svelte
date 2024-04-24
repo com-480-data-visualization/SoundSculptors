@@ -1,26 +1,43 @@
 <script>
 import Map from './lib/map.svelte'
 import {markets, iso2CodesByCountryName} from './lib/markets'
-import { DoubleBounce } from 'svelte-loading-spinners';
+import { RingLoader } from 'svelte-loading-spinners';
+import * as d3chromatic from 'd3-scale-chromatic';
+import { color } from 'd3';
 
 const BASE_URL = "http://127.0.0.1:5000"
+
+$: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
+$: step = 1 / size;
+let size = 100;
+let interpolator = d3chromatic.interpolateTurbo
+$: colors = Array.from({ length: size }, (_, i) => interpolator(i * step));
+$: console.log(colorMap)
+
 let selected;
-let colors = {}
+let colorMap = {}
 let loading = true
 let setLoading = x => loading = true
 $: fetch(BASE_URL+"/music_similarity?country_code="+
     iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
-    .then(x => x.json()).then(x => {colors = x; loading=false;})
+    .then(x => x.json()).then(x => {
+        colorMap = x; 
+        Object.keys(colorMap).forEach(key => colorMap[key] = colors[size * colorMap[key]])
+        loading=false;
+    })
     .catch(err => console.log(err))
 $: setLoading(selected)
+
 let view = "country-similarity"
+
+
 
 </script>
 
 <main>
 {#if loading}
     <div class="loading">
-        <DoubleBounce />
+        <RingLoader />
     </div>
 {/if}
 <div class="header">
@@ -31,7 +48,15 @@ let view = "country-similarity"
 <div class="container">
     <div class="map">
         {#if view == "country-similarity"}
-            <Map bind:selected {colors} />
+            <Map bind:selected colors={colorMap} />
+            <div class="similarity">
+                Least similar music <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})" /> Most Similar
+                <select bind:value={interpolator}>
+                    {#each interpolators as option}
+                    <option value={option[1]}>{option[0]}</option>
+                    {/each}
+                </select>
+            </div>
         {:else if view == "radar"}
             <Map bind:selected />
         {:else if view == "listen-in"}
@@ -73,5 +98,13 @@ let view = "country-similarity"
         position:fixed;
         top: 15rem;
         left: 25rem;
+    }
+    .gradient {
+		height: 1rem;
+        width: 20rem;
+	}
+    .similarity{
+        display: flex;
+        justify-content: space-evenly;
     }
 </style>
