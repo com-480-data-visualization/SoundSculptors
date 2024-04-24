@@ -21,6 +21,12 @@ os.environ["PORT"] = "5000"
 client_credentials_manager = SpotifyClientCredentials(client_id='88eec4f7753e4dfca4df81e895266679', client_secret='23952bdbe81c4618b3950b4bf321da2b')
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
+def get_playlist_tracks(playlist_id):
+    # Get tracks from the playlist
+    tracks = sp.playlist_tracks(playlist_id, limit=50)['items']
+    # Extract track IDs
+    track_ids = [track['track']['id'] for track in tracks if track['track']]
+    return track_ids
 def get_top_tracks_playlist_id(country_name):
     # Search for the top tracks playlist for the country
     playlist = sp.search("Top 50 - " + country_name, limit=1, type="playlist")
@@ -29,15 +35,27 @@ def get_top_tracks_playlist_id(country_name):
         playlist_id = playlist['playlists']['items'][0]['uri']
         return playlist_id
     else:
-        raise Exception("Top tracks playlist not found for the country")
+        return None
 
 country_top_sound_ids = {}
 
-# Initialize country_top_sound_ids dictionary with empty lists for all country codes
-for country_code in sp.country_codes:
-    country_top_sound_ids[country_code] = get_top_tracks_playlist_id(coco.convert(country_code, to="name_short", not_found="Global"))
+#for country_code in sp.available_markets()['markets']:
+
+# for country_code in sp.country_codes:
+for country_code in sp.available_markets()['markets']:
+    country_name = coco.convert(country_code, to="name_short", not_found="Global")
+    playlist_id = get_top_tracks_playlist_id(country_name)
+    if playlist_id is None:
+        continue
+    country_top_sound_ids[country_code] = get_playlist_tracks(playlist_id)
+
 
 print("Init top tracks done!")
+
+@app.route('/radar_similarity', methods=['GET'])
+def get_radar_data():
+    return None
+
 @app.route('/music_similarity', methods=['GET'])
 def get_music_similarity():
     # Get country code from request parameters
@@ -50,7 +68,6 @@ def get_music_similarity():
         return jsonify({"error": "Invalid country code"}), 400
 
     try:
-
         # Calculate similarity scores with other countries
         similarity_scores = calculate_similarity(country_code)
 
@@ -70,8 +87,8 @@ def calculate_similarity(country_code):
         if cc != country_code:
             try:
                 # Get top tracks playlist ID for another country
-                other_country_name = coco.convert(cc, to="name_short", not_found="Global")
-                other_playlist_id = get_top_tracks_playlist_id(other_country_name)
+                # other_country_name = coco.convert(cc, to="name_short", not_found="Global")
+                # other_playlist_id = get_top_tracks_playlist_id(other_country_name)
 
                 # Get tracks from both playlists
                 country_tracks = set(current_country_top_sound_ids)
@@ -89,12 +106,7 @@ def calculate_similarity(country_code):
     return similarity_scores
 
 
-def get_playlist_tracks(playlist_id):
-    # Get tracks from the playlist
-    tracks = sp.playlist_tracks(playlist_id, limit=50)['items']
-    # Extract track IDs
-    track_ids = [track['track']['id'] for track in tracks if track['track']]
-    return track_ids
+
 
 
 @app.route('/top_tracks', methods=['GET'])
@@ -160,7 +172,7 @@ def sign_out():
     session.pop("token_info", None)
     return redirect('/')
 
-   
+
 # @app.route('/popular', methods=["GET", "POST"])
 # def popular():
 #     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
