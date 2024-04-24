@@ -15,6 +15,7 @@ $: colors = Array.from({ length: size }, (_, i) => interpolator(i * step));
 
 let selected;
 let colorMap = {}
+let percentMap = {}
 let loading = false
 let fetcher = (selected) => {
     if (selected!=null && selected != undefined) { 
@@ -23,14 +24,18 @@ let fetcher = (selected) => {
         fetch(BASE_URL+"/music_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
         .then(x => {
             console.log("LOADED")
-            colorMap = x; 
-            Object.keys(colorMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * colorMap[key])] })
+            percentMap = x; 
+            Object.keys(percentMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * percentMap[key])] })
             loading=false;
         }).catch(err => console.log(err))
     }
 }
 $: fetcher(selected)
 
+let recolor = (colors) => {
+    Object.keys(percentMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * percentMap[key])] })
+}
+$: recolor(colors)
 
 
 let view = "country-similarity"
