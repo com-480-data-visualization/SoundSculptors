@@ -4,21 +4,22 @@ from flask_session import Session
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
 import country_converter as coco
+from flask_cors import CORS
 
 cc = coco.CountryConverter()
 
 app = Flask(__name__)
 
-os.environ['SPOTIPY_CLIENT_ID'] = '88eec4f7753e4dfca4df81e895266679'
-os.environ['SPOTIPY_CLIENT_SECRET'] = '23952bdbe81c4618b3950b4bf321da2b' #or as environment variables
+# os.environ['SPOTIPY_CLIENT_ID'] = '0a774d28df90456996f936715bf7276b'
+# os.environ['SPOTIPY_CLIENT_SECRET'] = 'a79977fd36c54f189635fe87ac6443ac' #or as environment variables
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost:5000'
 os.environ["PORT"] = "5000"
-#Session(app)
-
-client_credentials_manager = SpotifyClientCredentials(client_id='88eec4f7753e4dfca4df81e895266679', client_secret='23952bdbe81c4618b3950b4bf321da2b')
+Session(app)
+CORS(app)
+client_credentials_manager = SpotifyClientCredentials(client_id='0a774d28df90456996f936715bf7276b', client_secret='a79977fd36c54f189635fe87ac6443ac')
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 def get_top_tracks_playlist_id(country_name):
@@ -53,7 +54,6 @@ def get_music_similarity():
 
         # Calculate similarity scores with other countries
         similarity_scores = calculate_similarity(country_code)
-
         return jsonify(similarity_scores), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -139,7 +139,6 @@ def index():
         # Step 2. Being redirected from Spotify auth page
         auth_manager.get_access_token(request.args.get("code"))
         return redirect('/')
-
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         # Step 1. Display sign in link when no token
         auth_url = auth_manager.get_authorize_url()
