@@ -23,11 +23,9 @@ let percentMap = {}
 let loading = false
 let fetcher = (selected) => {
     if (selected!=null && selected != undefined) { 
-        console.log("FETCHING")
         loading = true;
         fetch(BASE_URL+"/music_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
         .then(x => {
-            console.log("LOADED")
             percentMap = x; 
             Object.keys(percentMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * percentMap[key])] })
             loading=false;
@@ -83,7 +81,7 @@ let view = "country-similarity"
             <h1>top 50 songs in {selected?.properties.name.toLowerCase() ?? "globally"}:</h1>
         {:else if view == "radar"}
             <!-- <h1>radar</h1> -->
-            <Radar />
+            <Radar {selected} />
         {:else if view == "listen-in"}
             <h1>listen in</h1>
         {/if}
