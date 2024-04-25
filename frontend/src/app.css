@@ -1,0 +1,4 @@
+.chart-container {
+    width: 500px; /* Explicit width */
+    height: 300px; /* Explicit height */
+}
