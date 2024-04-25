@@ -22,7 +22,7 @@
         liveness: 6,
 	},];
 	let fetcher = (selected) => {
-		fetch(BASE_URL+"/music_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
+		fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
 			.then(x => data = [x])
 	} 
 	$: fetcher(selected)
