@@ -14,21 +14,25 @@
 	export let selected;
 	let data = [{
 		country: 'Allison',
-		danceability: 5,
-		speechiness: 1,
-		energy: 6,
-		acousticness: 8,
-		instrumentalness: 0,
-        liveness: 6,
+		danceability: .5,
+		speechiness: .1,
+		energy: .6,
+		acousticness: .8,
+		tempo: 0,
+        duration_ms: .6,
 	},];
 	let fetcher = (selected) => {
 		fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
-			.then(x => data = [x])
+			.then(x =>{
+				x["tempo"] /= 140
+				x["duration_ms"] /= 240000
+				data = [x]
+			} )
 	} 
 	$: fetcher(selected)
 	$: console.log(data)
 	const seriesKey = 'country';
-	const xKey = ['danceability', 'speechiness', 'energy', 'acousticness', 'instrumentalness', 'liveness'];
+	const xKey = ['danceability', 'speechiness', 'energy', 'acousticness', 'tempo', 'duration_ms'];
 
 	const seriesNames = Object.keys(data[0]).filter(d => d !== seriesKey);
 
@@ -58,7 +62,7 @@
 	<LayerCake
 		padding={{ top: 60, right: 0, bottom: 7, left: 60 }}
 		x={xKey}
-		xDomain={[0, 15]}
+		xDomain={[0, 2]}
 		xRange={({ height }) => [0, height]}
 		{data}
 	>

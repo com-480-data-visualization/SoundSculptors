@@ -54,7 +54,6 @@ print("Init top tracks done!")
 @app.route('/radar_similarity', methods=['GET'])
 def get_radar_data():
     country_code = request.args.get('country_code')
-
     # Get list of track IDs for the input country
     input_country_tracks = country_top_sound_ids.get(country_code, [])
     if not input_country_tracks:
