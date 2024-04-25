@@ -95,6 +95,7 @@ def calculate_average_track_features(track_ids):
     if num_tracks > 0:
         for feature in average_features:
             average_features[feature] /= num_tracks
+            average_features[feature] = round(average_features[feature], 3)
 
     return average_features
 
