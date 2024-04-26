@@ -3,17 +3,15 @@
 	
 	import { LayerCake, Svg } from 'layercake';
 	import { scaleLinear } from 'd3-scale';
-
 	import Radar from './_components/Radar.svelte';
 	import AxisRadial from './_components/AxisRadial.svelte';
 	const BASE_URL = "http://127.0.0.1:5000"
 	import {markets, iso2CodesByCountryName} from '../lib/markets'
 
-  // In your local project, you will more likely be loading this as a csv and converting it to json using @rollup/plugin-dsv
-	// import data from './_data//radarScores.js';
-	export let selected;
+	// export let selected;
+	// let data = [];
 	let data = [{
-		country: 'Allison',
+		country: 'USA',
 		danceability: .5,
 		speechiness: .1,
 		energy: .6,
@@ -21,20 +19,37 @@
 		tempo: 0,
         duration_ms: .6,
 	},];
-	let fetcher = (selected) => {
-		fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
-			.then(x =>{
-				x["tempo"] /= 140
-				x["duration_ms"] /= 240000
-				data = [x]
-			} )
-	} 
-	$: fetcher(selected)
+
+
+	// let errorMessage = '';
+	// let fetcher = (selected) => {
+	// 	fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
+	// 		.then(x => {
+	// 			if (!x.ok) {
+	// 				throw new Error('Network response was not ok');
+	// 			}
+	// 			return x.json();
+	// 		})
+	// 		.then(x => {
+	// 			console.log('Fetched data:', x);
+	// 			x["tempo"] /= 140;
+	// 			x["duration_ms"] /= 240000;
+	// 			data = [x];
+	// 		})
+	// 		.catch(error => {
+	// 			console.error('Fetch error:', error);
+	// 			errorMessage = 'An error occurred while fetching the data. Please try again later.';
+	// 		});
+	// };
+	// $: fetcher(selected)
 	$: console.log(data)
 	const seriesKey = 'country';
 	const xKey = ['danceability', 'speechiness', 'energy', 'acousticness', 'tempo', 'duration_ms'];
 
+
 	const seriesNames = Object.keys(data[0]).filter(d => d !== seriesKey);
+	console.log(seriesNames); // Print the value of the 'seriesNames' variable
+
 
 
 	data.forEach(d => {
@@ -44,6 +59,10 @@
 	});
 </script>
 
+<!-- {#if errorMessage}
+    <div class="error-message">{errorMessage}</div>
+{/if} -->
+
 <style>
 	/*
 		The wrapper div needs to have an explicit width and height in CSS.
@@ -52,7 +71,7 @@
 		expand to fill it.
 	*/
 	.chart-container {
-    min-width : 30rem;
+    	min-width : 30rem;
 		width: 60%;
 		height: 60%;
 	}
@@ -67,8 +86,8 @@
 		{data}
 	>
 		<Svg>
-			<AxisRadial/>
-			<Radar/>
+			<AxisRadial {data}/>
+			<Radar {data}/>
 		</Svg>
 	</LayerCake>
 </div>
