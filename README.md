@@ -63,6 +63,9 @@ We take this [visualization](https://public.tableau.com/views/MakeoverMonday-Wee
 
 **10% of the final grade**
 
+You can find the report describing the project goals [here](milestone2.pdf).
+You can access the first version of our website here [ADD link].
+
 
 ## Milestone 3 (31st May, 5pm)
 
