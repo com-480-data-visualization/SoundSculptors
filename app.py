@@ -4,21 +4,23 @@ from flask_session import Session
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
 import country_converter as coco
+from collections import Counter
+import json
+
 
 cc = coco.CountryConverter()
 
 app = Flask(__name__)
 
-os.environ['SPOTIPY_CLIENT_ID'] = ''
-os.environ['SPOTIPY_CLIENT_SECRET'] = '' #or as environment variables
-
+os.environ['SPOTIPY_CLIENT_ID'] = '88eec4f7753e4dfca4df81e895266679'
+os.environ['SPOTIPY_CLIENT_SECRET'] = '23952bdbe81c4618b3950b4bf321da2b' #or as environment variables
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 os.environ["SPOTIPY_REDIRECT_URI"] = 'http://localhost:5000'
-os.environ["PORT"] = "5000"
+os.environ["PORT"] = "5001"
 #Session(app)
 
-client_credentials_manager = SpotifyClientCredentials(client_id='', client_secret='')
+client_credentials_manager = SpotifyClientCredentials(client_id='88eec4f7753e4dfca4df81e895266679', client_secret='23952bdbe81c4618b3950b4bf321da2b')
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 def get_playlist_tracks(playlist_id):
@@ -37,6 +39,8 @@ def get_top_tracks_playlist_id(country_name):
     else:
         return None
 
+print("Start cache initing")
+
 country_top_sound_ids = {}
 
 # for country_code in sp.country_codes:
@@ -48,7 +52,7 @@ for country_code in sp.available_markets()['markets']:
     country_top_sound_ids[country_code] = get_playlist_tracks(playlist_id)
 
 
-print("Init top tracks done!")
+print("Init cache done!")
 
 @app.route('/radar_similarity', methods=['GET'])
 def get_radar_data():
@@ -105,13 +109,11 @@ def get_music_similarity():
     country_code = request.args.get('country_code')
 
     try:
-        # Convert country code to country name
         country_name = coco.convert(country_code, to="name_short", not_found="Global")
     except coco.CountryNotFoundException:
         return jsonify({"error": "Invalid country code"}), 400
 
     try:
-        # Calculate similarity scores with other countries
         similarity_scores = calculate_similarity(country_code)
 
         return jsonify(similarity_scores), 200
@@ -119,8 +121,62 @@ def get_music_similarity():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/top_genres', methods=['GET'])
+def get_top_genres_api():
+    # Get country code from request parameters
+    country_code = request.args.get('country_code')
+
+    try:
+        # Convert country code to country name
+        country_name = coco.convert(country_code, to="name_short", not_found="Global")
+    except coco.CountryNotFoundException:
+        return jsonify({"error": "Invalid country code"}), 400
+
+    try:
+        # Get top genres for the country
+        top_genres = get_top_genres(country_code)
+        return app.response_class(
+            response=json.dumps(top_genres, sort_keys=False),
+            status=200,
+            mimetype='application/json'
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
+def get_top_genres(country_name):
+    playlist = sp.search("Top 50 - " + country_name, limit=1, type="playlist")
+
+    if not playlist['playlists']['items']:
+        raise Exception("Top tracks playlist does not exist")
+
+    playlist_id = playlist['playlists']['items'][0]['uri']
+    top_tracks = sp.playlist_tracks(playlist_id, limit=50)['items']
+
+    # Extract artist IDs from each track
+    artist_ids = [track['track']['artists'][0]['id'] for track in top_tracks]
+
+    # Fetch genres of artists
+    genres = []
+    for artist_id in artist_ids:
+        artist_info = sp.artist(artist_id)
+        if artist_info['genres']:
+            genres.extend(artist_info['genres'])
+
+    # Calculate genre distribution
+    genre_counts = Counter(genres)
+    total_artists = len(artist_ids)
+    genre_distribution = {genre: (count / total_artists) * 100 for genre, count in genre_counts.items()}
+
+    total_percentage = sum(genre_distribution.values())
+    normalized_genre_distribution = {genre: round((percentage / total_percentage) * 100, 1) for genre, percentage in
+                                     genre_distribution.items()}
+
+    sorted_genres = sorted(normalized_genre_distribution.items(), key=lambda x: x[1], reverse=True)
+
+    top_10_genres = dict(sorted_genres[:10])
+
+    return top_10_genres
 
 def calculate_similarity(country_code):
     similarity_scores = {}
@@ -184,36 +240,36 @@ def get_top_tracks():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/')
-def index():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
-                                               cache_handler=cache_handler,
-                                               show_dialog=True)
-    if request.args.get("code"):
-        # Step 2. Being redirected from Spotify auth page
-        auth_manager.get_access_token(request.args.get("code"))
-        return redirect('/')
-
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        # Step 1. Display sign in link when no token
-        auth_url = auth_manager.get_authorize_url()
-        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
-
-    # Step 3. Signed in, display data
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    return f'<h2>Hi {spotify.me()["display_name"]}, ' \
-           f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
-           f'<a href="/playlists">my playlists</a> | ' \
-           f'<a href="/currently_playing">currently playing</a> | ' \
-        f'<a href="/current_user">me</a>' \
-
-
-
-@app.route('/sign_out')
-def sign_out():
-    session.pop("token_info", None)
-    return redirect('/')
+# @app.route('/')
+# def index():
+#     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+#     auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
+#                                                cache_handler=cache_handler,
+#                                                show_dialog=True)
+#     if request.args.get("code"):
+#         # Step 2. Being redirected from Spotify auth page
+#         auth_manager.get_access_token(request.args.get("code"))
+#         return redirect('/')
+#
+#     if not auth_manager.validate_token(cache_handler.get_cached_token()):
+#         # Step 1. Display sign in link when no token
+#         auth_url = auth_manager.get_authorize_url()
+#         return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+#
+#     # Step 3. Signed in, display data
+#     spotify = spotipy.Spotify(auth_manager=auth_manager)
+#     return f'<h2>Hi {spotify.me()["display_name"]}, ' \
+#            f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
+#            f'<a href="/playlists">my playlists</a> | ' \
+#            f'<a href="/currently_playing">currently playing</a> | ' \
+#         f'<a href="/current_user">me</a>' \
+#
+#
+#
+# @app.route('/sign_out')
+# def sign_out():
+#     session.pop("token_info", None)
+#     return redirect('/')
 
 
 # @app.route('/popular', methods=["GET", "POST"])
@@ -256,64 +312,64 @@ def sign_out():
 #     songs = spotify.playlist_tracks(top_songs)
 #     return form +f"<h1>Most popular hits in: {country}</h1> <ul>" +"\n".join(["<li>"+x["track"]["name"] + " by " + x['track']["artists"][0]["name"] + "</li>" for x in songs["items"]]) + "</ul>"
 
-@app.route('/find_artist')
-def artist():
-    return """<form method="POST">
-    <input name="text">
-    <input type="submit">
-    </form>"""
-@app.route('/find_artist', methods=["POST"])
-def artist_post():
-    text = request.form['text']
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    artist_id = spotify.search(text,type='artist', limit=1)['artists']['items'][0]['uri']
-    tracks = spotify.artist_albums(artist_id)
-    answer = "<ul>"
-    for track in tracks['items'][:10]:
-        name = 'track    : ' + track['name']
-        artist = ' by : ' + track['artists'][0]['name']
-
-        answer += "<li>" + name + artist+ "</li>"
-    answer += "</ul>"
-    return answer
-
-@app.route('/playlists')
-def playlists():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    return spotify.current_user_playlists()
-
-
-@app.route('/currently_playing')
-def currently_playing():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    track = spotify.current_user_playing_track()
-    if not track is None:
-        return track
-    return "No track currently playing."
-
-
-@app.route('/current_user')
-def current_user():
-    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
-    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
-    if not auth_manager.validate_token(cache_handler.get_cached_token()):
-        return redirect('/')
-    spotify = spotipy.Spotify(auth_manager=auth_manager)
-    return spotify.current_user()
+# @app.route('/find_artist')
+# def artist():
+#     return """<form method="POST">
+#     <input name="text">
+#     <input type="submit">
+#     </form>"""
+# @app.route('/find_artist', methods=["POST"])
+# def artist_post():
+#     text = request.form['text']
+#     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+#     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+#     if not auth_manager.validate_token(cache_handler.get_cached_token()):
+#         return redirect('/')
+#
+#     spotify = spotipy.Spotify(auth_manager=auth_manager)
+#     artist_id = spotify.search(text,type='artist', limit=1)['artists']['items'][0]['uri']
+#     tracks = spotify.artist_albums(artist_id)
+#     answer = "<ul>"
+#     for track in tracks['items'][:10]:
+#         name = 'track    : ' + track['name']
+#         artist = ' by : ' + track['artists'][0]['name']
+#
+#         answer += "<li>" + name + artist+ "</li>"
+#     answer += "</ul>"
+#     return answer
+#
+# @app.route('/playlists')
+# def playlists():
+#     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+#     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+#     if not auth_manager.validate_token(cache_handler.get_cached_token()):
+#         return redirect('/')
+#
+#     spotify = spotipy.Spotify(auth_manager=auth_manager)
+#     return spotify.current_user_playlists()
+#
+#
+# @app.route('/currently_playing')
+# def currently_playing():
+#     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+#     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+#     if not auth_manager.validate_token(cache_handler.get_cached_token()):
+#         return redirect('/')
+#     spotify = spotipy.Spotify(auth_manager=auth_manager)
+#     track = spotify.current_user_playing_track()
+#     if not track is None:
+#         return track
+#     return "No track currently playing."
+#
+#
+# @app.route('/current_user')
+# def current_user():
+#     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+#     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+#     if not auth_manager.validate_token(cache_handler.get_cached_token()):
+#         return redirect('/')
+#     spotify = spotipy.Spotify(auth_manager=auth_manager)
+#     return spotify.current_user()
 
 
 
