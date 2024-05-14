@@ -204,10 +204,6 @@ def calculate_similarity(country_code):
                 print(f"Error calculating similarity with country {cc}: {e}")
     return similarity_scores
 
-
-
-
-
 @app.route('/top_tracks', methods=['GET'])
 def get_top_tracks():
     # Get country code from request parameters
@@ -239,6 +235,51 @@ def get_top_tracks():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/artist_details', methods=['GET'])
+def get_artist_details():
+    # Get artist name from request parameters
+    artist_name = request.args.get('artist_name')
+
+    try:
+        # Search for the artist
+        results = sp.search(artist_name, limit=1, type="artist")
+
+        if results['artists']['items']:
+            # Get the first artist from the search results
+            artist = results['artists']['items'][0]
+
+            # Extract relevant information
+            follower_number = artist['followers']['total']
+            popularity = artist['popularity']
+            image_url = artist['images'][0]['url'] if artist['images'] else None
+
+            # Get the artist's albums
+            albums = sp.artist_albums(artist['id'], album_type='album')
+            album_number = len(albums['items'])
+
+            # Get related artists
+            related_artists = []
+            for related_artist in sp.artist_related_artists(artist['id'])['artists']:
+                related_artists.append(related_artist['name'])
+
+            # Construct the response JSON
+            response_data = {
+                "follower_number": follower_number,
+                "popularity": popularity,
+                "image_url": image_url,
+                "album_number": album_number,
+                "related_artists": related_artists
+            }
+
+            return app.response_class(
+                response=json.dumps(response_data),
+                status=200,
+                mimetype='application/json'
+            )
+        else:
+            return jsonify({"error": "Artist not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # @app.route('/')
 # def index():
