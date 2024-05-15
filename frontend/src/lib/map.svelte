@@ -85,11 +85,11 @@
 	  <path d={path(feature)} on:click={() => selected = feature} class="state" stroke="rgb(0 0 0 / 10%)" fill="none" />
 	{/each}
 	 -->
-	{#each points as [cx, cy]}
+	<!-- {#each points as [cx, cy]}
 		<circle {cx} {cy} r={10} fill="black" />
 		<circle {cx} {cy} r={8} fill="white" />
 		<circle {cx} {cy} r={5} fill="black" />
-	{/each}
+	{/each} -->
 </svg>
 
 <!-- <div class="selectedName">{"Countries with most similar music tastes to: "+ selected?.properties.name ?? ''}</div> -->
