@@ -5,9 +5,8 @@ import yaml
 from loguru import logger
 from pydantic import BaseModel, validator
 
-class AppConfig(BaseModel):
-
-    def initialize(self, config_file='config.yaml'):
+class AppConfig():
+    def initialize(self, config_file='backend/config.yaml'):
         with open(config_file, 'r') as f:
             config = yaml.safe_load(f)
 

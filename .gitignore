@@ -1,7 +1,7 @@
 *.csv
 __pycache__/
-.flask_session/
+backend/.flask_session/
 logs/
 venv/
 .idea/
-.cache/
+backend/.cache/
