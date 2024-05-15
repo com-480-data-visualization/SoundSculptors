@@ -23,9 +23,8 @@ class HttpHandler:
             try:
                 country_name = coco.convert(country_code, to="name_short", not_found="Global")
                 top_tracks = self.spotify_handler.get_top_tracks_by_country(country_name)
+
                 return jsonify(top_tracks), 200
-            except coco.CountryNotFoundException:
-                return jsonify({"error": "Invalid country code"}), 400
 
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
@@ -57,8 +56,6 @@ class HttpHandler:
                     status=200,
                     mimetype='application/json'
                 )
-            except coco.CountryNotFoundException:
-                return jsonify({"error": "Invalid country code"}), 400
 
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
@@ -67,14 +64,8 @@ class HttpHandler:
         def get_radar_data():
             country_code = request.args.get('country_code')
 
-            # Get list of track IDs for the input country
-            input_country_tracks = self.spotify_handler.country_top_sound_ids.get(country_code, [])
-            if not input_country_tracks:
-                return jsonify({"error": "No tracks found for the input country"}), 404
-
             try:
-                # Calculate track feature similarity for input country tracks
-                similarity_scores = self.spotify_handler.calculate_average_track_features(input_country_tracks)
+                similarity_scores = self.spotify_handler.calculate_average_track_features(country_code)
 
                 return jsonify(similarity_scores), 200
             except Exception as e:
@@ -87,10 +78,6 @@ class HttpHandler:
 
             try:
                 country_name = coco.convert(country_code, to="name_short", not_found="Global")
-            except coco.CountryNotFoundException:
-                return jsonify({"error": "Invalid country code"}), 400
-
-            try:
                 similarity_scores = self.spotify_handler.calculate_similarity(country_code)
 
                 return jsonify(similarity_scores), 200

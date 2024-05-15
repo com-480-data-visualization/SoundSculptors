@@ -52,7 +52,12 @@ class SpotifyHandler:
         } for track in tracks]
 
 
-    def calculate_average_track_features(self, track_ids):
+    def calculate_average_track_features(self, country_code):
+        input_country_tracks = self.country_top_sound_ids.get(country_code, [])
+
+        if not input_country_tracks:
+            raise Exception("Tracks does not exist")
+
         average_features = {
             "acousticness": 0,
             "danceability": 0,
@@ -62,18 +67,17 @@ class SpotifyHandler:
             "tempo": 0
         }
 
-        for track_id in track_ids:
-            track_features = self.sp.audio_features(track_id)[0]
-            if track_features:
-                average_features["acousticness"] += track_features["acousticness"] or 0
-                average_features["danceability"] += track_features["danceability"] or 0
-                average_features["duration_ms"] += track_features["duration_ms"] or 0
-                average_features["energy"] += track_features["energy"] or 0
-                average_features["speechiness"] += track_features["speechiness"] or 0
-                average_features["tempo"] += track_features["tempo"] or 0
+        track_feature_list = self.sp.audio_features(input_country_tracks)
 
-        # Calculate average features
-        num_tracks = len(track_ids)
+        for track_feature in track_feature_list:
+            average_features["acousticness"] += track_feature["acousticness"] or 0
+            average_features["danceability"] += track_feature["danceability"] or 0
+            average_features["duration_ms"] += track_feature["duration_ms"] or 0
+            average_features["energy"] += track_feature["energy"] or 0
+            average_features["speechiness"] += track_feature["speechiness"] or 0
+            average_features["tempo"] += track_feature["tempo"] or 0
+
+        num_tracks = len(input_country_tracks)
         if num_tracks > 0:
             for feature in average_features:
                 average_features[feature] /= num_tracks
@@ -85,7 +89,6 @@ class SpotifyHandler:
         results = self.sp.search(artist_name, limit=1, type="artist")
 
         if results['artists']['items']:
-
             artist = results['artists']['items'][0]
             follower_number = artist['followers']['total']
             popularity = artist['popularity']
@@ -120,9 +123,9 @@ class SpotifyHandler:
         artist_ids = [track['track']['artists'][0]['id'] for track in top_tracks]
 
         # Fetch genres of artists
+        artist_info_list = self.sp.artists(artist_ids)
         genres = []
-        for artist_id in artist_ids:
-            artist_info = self.sp.artist(artist_id)
+        for artist_info in artist_info_list.get("artists"):
             if artist_info['genres']:
                 genres.extend(artist_info['genres'])
 
