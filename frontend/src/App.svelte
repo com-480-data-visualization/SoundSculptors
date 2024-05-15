@@ -8,6 +8,7 @@ import { color } from 'd3';
 
 const BASE_URL = "http://127.0.0.1:5000"
 
+
 $: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
 $: step = 1 / size;
 let size = 100;
@@ -20,20 +21,27 @@ $: console.log(colorMap)
 let selected;
 let colorMap = {}
 let percentMap = {}
-let loading = false
+let loadingSimilarity = false
 let fetcher = (selected) => {
     if (selected!=null && selected != undefined) { 
-        loading = true;
+        loadingSimilarity = true;
         fetch(BASE_URL+"/music_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
         .then(x => {
             percentMap = x; 
             Object.keys(percentMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * percentMap[key])] })
-            loading=false;
+            loadingSimilarity=false;
         }).catch(err => console.log(err))
     }
 }
 $: fetcher(selected)
-
+let top_ten;
+let song_fetcher = (selected) => {
+    fetch(BASE_URL+"/top_tracks?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
+        .then(x => {
+            top_ten = x.slice(0,10)
+        }).catch(err => console.log(err))
+}
+$: song_fetcher(selected) 
 let recolor = (colors) => {
     Object.keys(percentMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * percentMap[key])] })
 }
@@ -47,19 +55,20 @@ let view = "country-similarity"
 </script>
 
 <main>
-{#if loading}
-    <div class="loading">
-        <RingLoader />
-    </div>
-{/if}
+
 <div class="header">
-    <h3 class="header-item" on:click={() => view="country-similarity"}>Music Taste Similarities</h3> 
-    <h3 class="header-item" on:click={() => view="radar"}>Country Music Radar</h3>   
-    <h3 class="header-item" on:click={() => view="listen-in"}>Listen In</h3>  
+    <h3 class="header-item" on:click={() => view="country-similarity"} style={view=="country-similarity"?"text-decoration:underline":""}>Music Taste Similarities</h3> 
+    <h3 class="header-item" on:click={() => view="radar"} style={view=="radar"?"text-decoration:underline":""}>Country Music Radar</h3>   
+    <h3 class="header-item" on:click={() => view="listen-in"} style={view=="listen-in"?"text-decoration:underline":""}>Listen In</h3>  
 </div>
 <div class="container">
     <div class="map">
         {#if view == "country-similarity"}
+            {#if loadingSimilarity}
+                <div class="loading">
+                    <RingLoader />
+                </div>
+            {/if}
             <Map bind:selected colors={colorMap} />
             <div class="similarity">
                 Least similar music <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})" /> Most Similar
@@ -78,7 +87,14 @@ let view = "country-similarity"
     </div>
     <div>
         {#if view == "country-similarity"}
-            <h1>top 50 songs in {selected?.properties.name.toLowerCase() ?? "globally"}:</h1>
+            <h1>top 10 songs in {selected?.properties.name.toLowerCase() ?? "globally"}:</h1>
+            {#if top_ten }
+                <div>
+                    {#each top_ten as song}
+                       <div>{song["name"]} by {song["artist"]}</div>
+                    {/each}
+                </div>
+            {/if}
         {:else if view == "radar"}
             <!-- <h1>radar</h1> -->
             <Radar {selected} />

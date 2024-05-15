@@ -3,6 +3,7 @@
 	
 	import { LayerCake, Svg } from 'layercake';
 	import { scaleLinear } from 'd3-scale';
+	import { RingLoader } from 'svelte-loading-spinners';
 
 	import Radar from './_components/Radar.svelte';
 	import AxisRadial from './_components/AxisRadial.svelte';
@@ -12,6 +13,7 @@
   // In your local project, you will more likely be loading this as a csv and converting it to json using @rollup/plugin-dsv
 	// import data from './_data//radarScores.js';
 	export let selected;
+	let loading = false;
 	let data = [{
 		country: 'Allison',
 		danceability: .5,
@@ -22,11 +24,13 @@
         duration_ms: .6,
 	},];
 	let fetcher = (selected) => {
+		loading = true
 		fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
 			.then(x =>{
 				x["tempo"] /= 140
 				x["duration_ms"] /= 240000
 				data = [x]
+				loading = false;
 			} )
 	} 
 	$: fetcher(selected)
@@ -51,6 +55,11 @@
 		The point being it needs dimensions since the <LayerCake> element will
 		expand to fill it.
 	*/
+	.loading {
+        position:relative;
+        top: 15rem;
+        left: 20rem;
+    }
 	.chart-container {
     min-width : 30rem;
 		width: 60%;
@@ -59,6 +68,14 @@
 </style>
 
 <div class="chart-container">
+	{#if loading}
+                <div class="loading">
+                    <RingLoader />
+                </div>
+    {/if}
+	{#if !selected}
+	<p>Click on a country to see its music radar!</p>
+	{:else}
 	<LayerCake
 		padding={{ top: 60, right: 0, bottom: 7, left: 60 }}
 		x={xKey}
@@ -71,4 +88,5 @@
 			<Radar/>
 		</Svg>
 	</LayerCake>
+	{/if}
 </div>

@@ -65,6 +65,7 @@ def get_radar_data():
 
         return jsonify(similarity_scores), 200
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
 
 
