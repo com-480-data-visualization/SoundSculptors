@@ -15,7 +15,7 @@
 	export let selected;
 	let loading = false;
 	let data = [{
-		country: 'Allison',
+		country: 'USA',
 		danceability: .5,
 		speechiness: .1,
 		energy: .6,
@@ -38,7 +38,10 @@
 	const seriesKey = 'country';
 	const xKey = ['danceability', 'speechiness', 'energy', 'acousticness', 'tempo', 'duration_ms'];
 
+
 	const seriesNames = Object.keys(data[0]).filter(d => d !== seriesKey);
+	console.log(seriesNames); // Print the value of the 'seriesNames' variable
+
 
 
 	data.forEach(d => {
@@ -47,6 +50,10 @@
 		});
 	});
 </script>
+
+<!-- {#if errorMessage}
+    <div class="error-message">{errorMessage}</div>
+{/if} -->
 
 <style>
 	/*
@@ -61,7 +68,7 @@
         left: 20rem;
     }
 	.chart-container {
-    min-width : 30rem;
+    	min-width : 30rem;
 		width: 60%;
 		height: 60%;
 	}
@@ -84,8 +91,8 @@
 		{data}
 	>
 		<Svg>
-			<AxisRadial/>
-			<Radar/>
+			<AxisRadial {data}/>
+			<Radar {data}/>
 		</Svg>
 	</LayerCake>
 	{/if}

@@ -49,10 +49,21 @@ $: recolor(colors)
 
 
 let view = "country-similarity"
-
-
+let selectedSmallTitle = null;
 
 </script>
+
+<header>
+    <div class="title-container">
+        <h1 class="big-title">SoundSculptors</h1>
+        <div class="small-titles">
+            <span class="small-title {selectedSmallTitle === 'similarities' ? 'selected' : ''}" on:click={() => { selectedSmallTitle = 'similarities'; view = 'country-similarity'; }}>Music taste similarities</span>
+            <span class="small-title {selectedSmallTitle === 'characteristics' ? 'selected' : ''}" on:click={() => {selectedSmallTitle = 'characteristics';view="radar"}}>Characteristics</span>
+            <span class="small-title {selectedSmallTitle === 'genres' ? 'selected' : ''}" on:click={() => {selectedSmallTitle = 'genres'; view="genres"}}>Genres</span>
+            <span class="small-title {selectedSmallTitle === 'related-artists' ? 'selected' : ''}" on:click={() => {selectedSmallTitle = 'related-artists';view="artists"}}>Related Artists</span>
+        </div>
+    </div>
+</header>
 
 <main>
 
@@ -71,7 +82,7 @@ let view = "country-similarity"
             {/if}
             <Map bind:selected colors={colorMap} />
             <div class="similarity">
-                Least similar music <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})" /> Most Similar
+                Least similar music taste <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})" /> Most similar music taste
                 <select bind:value={interpolator}>
                     {#each interpolators as option}
                     <option value={option[1]}>{option[0]}</option>
@@ -79,6 +90,8 @@ let view = "country-similarity"
                 </select>
             </div>
         {:else if view == "radar"}
+            <Map bind:selected /> 
+        {:else if view == "genres"}
             <Map bind:selected /> 
         {:else if view == "listen-in"}
             <Map bind:selected  />
@@ -96,13 +109,30 @@ let view = "country-similarity"
                 </div>
             {/if}
         {:else if view == "radar"}
-            <!-- <h1>radar</h1> -->
-            <Radar {selected} />
+            <h2>Top songs average features in [selected country]</h2>
+            <Radar bind:selected/>
+        {:else if view == "genres"}
+            <h2>Top genres in [selected country]</h2>
+            <div class="genres_container">
+                <p>The bar chart goes here</p>
+            </div>
+
         {:else if view == "listen-in"}
-            <h1>listen in</h1>
+            <h1>Listen in [selected country]</h1>
         {/if}
     </div>
 </div>
+{#if view == "artists"}
+    <div class="input-container">
+        <label class="input-label">Write the name of an artist:</label>
+        <input type="text" placeholder="Enter artist name here">
+    </div>
+
+    <div class="graph_container">
+        <p>The graph goes here</p>
+        <!-- Add graph component here -->
+</div>
+{/if}
 </main>
 
 <style>
@@ -113,7 +143,7 @@ let view = "country-similarity"
         min-width: 60rem;
         /* max-width: 8000rem; */ 
     }
-    .container {
+    .map_container {
         display:flex;
         /* background-color: green; */
     }
@@ -137,5 +167,33 @@ let view = "country-similarity"
     .similarity{
         display: flex;
         justify-content: space-evenly;
+    }
+    .graph_container {
+    /* Style the container for the graph */
+    margin-top: 20px;
+    padding: 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    width: 50rem;
+    height: 30rem;
+  }
+
+    .input-container {
+    /* Use flexbox to align items horizontally */
+    display: flex;
+    align-items: center; /* Center items vertically */
+    }
+
+    .input-label {
+    /* Style the label for the input */
+    font-weight: bold;
+    margin-right: 10px; /* Add margin to separate label from input */
+    }
+
+    .genres_container {
+    /* Style the container for the genres */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     }
 </style>
