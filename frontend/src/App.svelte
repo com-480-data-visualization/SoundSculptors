@@ -67,12 +67,12 @@ let selectedSmallTitle = null;
 
 <main>
 
-<div class="header">
+<!-- <div class="header">
     <h3 class="header-item" on:click={() => view="country-similarity"} style={view=="country-similarity"?"text-decoration:underline":""}>Music Taste Similarities</h3> 
     <h3 class="header-item" on:click={() => view="radar"} style={view=="radar"?"text-decoration:underline":""}>Country Music Radar</h3>   
     <h3 class="header-item" on:click={() => view="listen-in"} style={view=="listen-in"?"text-decoration:underline":""}>Listen In</h3>  
-</div>
-<div class="container">
+</div> -->
+<div class="map_container">
     <div class="map">
         {#if view == "country-similarity"}
             {#if loadingSimilarity}
@@ -109,7 +109,7 @@ let selectedSmallTitle = null;
                 </div>
             {/if}
         {:else if view == "radar"}
-            <h2>Top songs average features in [selected country]</h2>
+            <h2>Top songs average features in {selected?.properties.name.toLowerCase() ?? "??"}</h2>
             <Radar bind:selected/>
         {:else if view == "genres"}
             <h2>Top genres in [selected country]</h2>

@@ -80,8 +80,10 @@ def calculate_average_track_features(track_ids):
     }
 
     # Get track features for input country tracks
-    for track_id in track_ids:
-        track_features = sp.audio_features(track_id)[0]
+    tracks_features = sp.audio_features(track_ids) 
+    print("track features: ", track_features)
+    for track_features in tracks_features:
+        # track_features = sp.audio_features(track_id)[0]
         if track_features:
             average_features["acousticness"] += track_features["acousticness"] or 0
             average_features["danceability"] += track_features["danceability"] or 0

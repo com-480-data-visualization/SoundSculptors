@@ -30,6 +30,7 @@
 				x["tempo"] /= 140
 				x["duration_ms"] /= 240000
 				data = [x]
+				console.log(data)
 				loading = false;
 			} )
 	} 
@@ -75,25 +76,32 @@
 </style>
 
 <div class="chart-container">
-	{#if loading}
+	
+	{#if !selected}
+		<p>Click on a country to see its music radar!</p>
+	{:else}
+		{#if loading}
                 <div class="loading">
                     <RingLoader />
                 </div>
-    {/if}
-	{#if !selected}
-	<p>Click on a country to see its music radar!</p>
-	{:else}
-	<LayerCake
-		padding={{ top: 60, right: 0, bottom: 7, left: 60 }}
-		x={xKey}
-		xDomain={[0, 2]}
-		xRange={({ height }) => [0, height]}
-		{data}
-	>
-		<Svg>
-			<AxisRadial {data}/>
-			<Radar {data}/>
-		</Svg>
-	</LayerCake>
+   		{:else}
+			{#if 'error' in data[0]}
+				<p>Spotify servers are experiencing high load at this time, please try again later.</p>
+			{:else}
+				
+				<LayerCake
+					padding={{ top: 60, right: 0, bottom: 7, left: 60 }}
+					x={xKey}
+					xDomain={[0, 2]}
+					xRange={({ height }) => [0, height]}
+					{data}
+				>
+					<Svg>
+						<AxisRadial />
+						<Radar />
+					</Svg>
+				</LayerCake>
+			{/if}
+		{/if}
 	{/if}
 </div>
