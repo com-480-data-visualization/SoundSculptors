@@ -48,7 +48,6 @@ for country_code in sp.available_markets()['markets']:
         continue
     country_top_sound_ids[country_code] = get_playlist_tracks(playlist_id)
 
-
 print("Init top tracks done!")
 
 @app.route('/radar_similarity', methods=['GET'])
@@ -65,6 +64,7 @@ def get_radar_data():
 
         return jsonify(similarity_scores), 200
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -80,8 +80,10 @@ def calculate_average_track_features(track_ids):
     }
 
     # Get track features for input country tracks
-    for track_id in track_ids:
-        track_features = sp.audio_features(track_id)[0]
+    tracks_features = sp.audio_features(track_ids) 
+    print("track features: ", track_features)
+    for track_features in tracks_features:
+        # track_features = sp.audio_features(track_id)[0]
         if track_features:
             average_features["acousticness"] += track_features["acousticness"] or 0
             average_features["danceability"] += track_features["danceability"] or 0
@@ -118,9 +120,6 @@ def get_music_similarity():
         return jsonify({"error": str(e)}), 500
 
 
-
-
-
 def calculate_similarity(country_code):
     similarity_scores = {}
     global country_top_sound_ids
@@ -146,9 +145,6 @@ def calculate_similarity(country_code):
             except Exception as e:
                 print(f"Error calculating similarity with country {cc}: {e}")
     return similarity_scores
-
-
-
 
 
 @app.route('/top_tracks', methods=['GET'])

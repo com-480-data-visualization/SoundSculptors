@@ -63,6 +63,17 @@ We take this [visualization](https://public.tableau.com/views/MakeoverMonday-Wee
 
 **10% of the final grade**
 
+You can find the report describing the project goals [here](milestone2.pdf).
+
+You can access the first version of our website following these steps:
+- run `pip install -r requirements.txt`
+- run `flask run`
+- open another terminal window
+- navigate to "frontend" document
+- run `npm install`
+- run `npm run dev`
+
+
 
 ## Milestone 3 (31st May, 5pm)
 
