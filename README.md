@@ -32,7 +32,7 @@ The **target audience** is planned to include people who are interested in music
 
 ### Exploratory Data Analysis
 
-We are exploring two different datasets. For the **first**, you can find the data exploration and some insights in [milestone1.ipynb](milestone1.ipynb). This is a dataset containing popular songs of 2023 accross different platforms, including Spotify, Deezer, and Apple Music. The **second** dataset we will look at is not fixed, and thus we are not reporting statistics about it. We are using data from the Spotify API. We will be using Spotipy in order to gain access to the data. Here, we list some API functions we believe to be relevant to our project. Additionally, we implemented a small flask server, which we use to test the outputs of the API. The provided [requirements.txt](requirements.txt) gives all the necessary installations to run it.   
+We are exploring two different datasets. For the **first**, you can find the data exploration and some insights in [milestone1.ipynb](milestone1.ipynb). This is a dataset containing popular songs of 2023 accross different platforms, including Spotify, Deezer, and Apple Music. The **second** dataset we will look at is not fixed, and thus we are not reporting statistics about it. We are using data from the Spotify API. We will be using Spotipy in order to gain access to the data. Here, we list some API functions we believe to be relevant to our project. Additionally, we implemented a small flask server, which we use to test the outputs of the API. The provided [requirements.txt](backend/requirements.txt) gives all the necessary installations to run it.   
 
 Functions:
 - `audio_features`: returns the audio features of a song (e.g. energy, danceability)
