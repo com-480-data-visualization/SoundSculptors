@@ -7,7 +7,7 @@
 
 	import Radar from './_components/Radar.svelte';
 	import AxisRadial from './_components/AxisRadial.svelte';
-	const BASE_URL = "http://127.0.0.1:5000"
+	export let BASE_URL
 	import {markets, iso2CodesByCountryName} from '../lib/markets'
 
   // In your local project, you will more likely be loading this as a csv and converting it to json using @rollup/plugin-dsv
