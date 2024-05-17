@@ -140,7 +140,9 @@ class SpotifyHandler:
 
         sorted_genres = sorted(normalized_genre_distribution.items(), key=lambda x: x[1], reverse=True)
 
-        top_10_genres = dict(sorted_genres[:10])
+        max = 10 if len(sorted_genres) > 10 else len(sorted_genres)
+
+        top_10_genres = dict(sorted_genres[:max])
 
         return top_10_genres
 

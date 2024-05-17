@@ -47,6 +47,23 @@ let recolor = (colors) => {
 }
 $: recolor(colors)
 
+let loadingGenre = false
+let genres = [];
+let genre_fetcher = (selected) => {
+    if (selected!=null && selected != undefined) { 
+        loadingGenre = true;
+        fetch(BASE_URL+"/top_genres?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
+                .then(x => x.json())
+                .then(data => {
+                    genres = Object.entries(data); // Assuming data is a dict of genre name and percentage
+                    loadingGenre = false;
+                })
+                .catch(err => {
+                    console.log(err);
+                    loadingGenre = false;
+                });
+    }
+}
 
 let view = "country-similarity"
 let selectedSmallTitle = null;
@@ -92,6 +109,11 @@ let selectedSmallTitle = null;
         {:else if view == "radar"}
             <Map bind:selected /> 
         {:else if view == "genres"}
+            {#if loadingGenre}
+                <div class="loading">
+                    <RingLoader />
+                </div>
+            {/if}
             <Map bind:selected /> 
         {:else if view == "listen-in"}
             <Map bind:selected  />
@@ -100,7 +122,7 @@ let selectedSmallTitle = null;
     </div>
     <div>
         {#if view == "country-similarity"}
-            <h1>top 10 songs in {selected?.properties.name.toLowerCase() ?? "globally"}:</h1>
+            <h1>top 10 songs in {selected?.properties.name ?? "Globally"}:</h1>
             {#if top_ten }
                 <div>
                     {#each top_ten as song}
@@ -109,12 +131,22 @@ let selectedSmallTitle = null;
                 </div>
             {/if}
         {:else if view == "radar"}
-            <h2>Top songs average features in {selected?.properties.name.toLowerCase() ?? "??"}</h2>
+            <h2>Top songs average features in {selected?.properties.name ?? "??"}</h2>
             <Radar bind:selected/>
         {:else if view == "genres"}
-            <h2>Top genres in [selected country]</h2>
+            <h2>Top genres in {selected?.properties.name}</h2>
             <div class="genres_container">
-                <p>The bar chart goes here</p>
+                {#if genres.length > 0}
+                    {#each genres as [genre, percentage]}
+                        <div class="bar">
+                            <span>{genre}</span>
+                            <div style="width: {percentage}%;"></div>
+                            <span>{percentage}%</span>
+                        </div>
+                    {/each}
+                {:else}
+                    <p>No data available.</p>
+                {/if}
             </div>
 
         {:else if view == "listen-in"}
@@ -195,5 +227,15 @@ let selectedSmallTitle = null;
     display: flex;
     flex-direction: column;
     align-items: center;
+    }
+
+    .bar {
+        display: flex;
+        align-items: center;
+    }
+    .bar div {
+        background-color: lightgray;
+        height: 20px;
+        margin-left: 10px;
     }
 </style>
