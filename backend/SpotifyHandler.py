@@ -1,7 +1,6 @@
 import logging
 import country_converter as coco
 from collections import Counter
-import json
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 
@@ -9,7 +8,7 @@ import spotipy
 class SpotifyHandler:
 
     def __init__(self, client_id, client_secret):
-        client_credentials_manager = SpotifyClientCredentials(client_id = client_id, client_secret = client_secret)
+        client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
         self.sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
         self.logger = logging.getLogger(__name__)
         self.country_top_sound_ids = {}
@@ -39,7 +38,6 @@ class SpotifyHandler:
         else:
             return None
 
-
     def get_top_tracks_by_country(self, country_name):
         playlist_id = self.get_top_tracks_playlist_id(country_name)
         tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
@@ -48,7 +46,6 @@ class SpotifyHandler:
             "artist": track['track']['artists'][0]['name'],
             "popularity": track['track']['popularity']
         } for track in tracks]
-
 
     def calculate_average_track_features(self, country_code):
         input_country_tracks = self.country_top_sound_ids.get(country_code, [])
@@ -110,14 +107,12 @@ class SpotifyHandler:
 
     def get_top_genres(self, country_name):
         playlist = self.sp.search("Top 50 - " + country_name, limit=1, type="playlist")
-        print(country_name)
-        print(playlist)
+
         if not playlist['playlists']['items']:
             raise Exception("Top tracks playlist does not exist")
 
         playlist_id = playlist['playlists']['items'][0]['uri']
         top_tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
-        print(top_tracks)
 
         # Extract artist IDs from each track
         artist_ids = [track['track']['artists'][0]['id'] for track in top_tracks]
@@ -128,8 +123,6 @@ class SpotifyHandler:
         for artist_info in artist_info_list.get("artists"):
             if artist_info['genres']:
                 genres.extend(artist_info['genres'])
-
-        print(genres)
 
         # Calculate genre distribution
         genre_counts = Counter(genres)
@@ -165,5 +158,5 @@ class SpotifyHandler:
                     # Store similarity score
                     similarity_scores[cc] = similarity_score
                 except Exception as e:
-                    print(f"Error calculating similarity with country {cc}: {e}")
+                    self.logger.error(f"Error calculating similarity with country {cc}: {e}")
         return similarity_scores
