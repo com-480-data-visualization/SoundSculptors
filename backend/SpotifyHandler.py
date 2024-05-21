@@ -110,12 +110,14 @@ class SpotifyHandler:
 
     def get_top_genres(self, country_name):
         playlist = self.sp.search("Top 50 - " + country_name, limit=1, type="playlist")
-
+        print(country_name)
+        print(playlist)
         if not playlist['playlists']['items']:
             raise Exception("Top tracks playlist does not exist")
 
         playlist_id = playlist['playlists']['items'][0]['uri']
         top_tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
+        print(top_tracks)
 
         # Extract artist IDs from each track
         artist_ids = [track['track']['artists'][0]['id'] for track in top_tracks]
@@ -126,6 +128,8 @@ class SpotifyHandler:
         for artist_info in artist_info_list.get("artists"):
             if artist_info['genres']:
                 genres.extend(artist_info['genres'])
+
+        print(genres)
 
         # Calculate genre distribution
         genre_counts = Counter(genres)
@@ -138,7 +142,9 @@ class SpotifyHandler:
 
         sorted_genres = sorted(normalized_genre_distribution.items(), key=lambda x: x[1], reverse=True)
 
-        top_10_genres = dict(sorted_genres[:10])
+        max = 10 if len(sorted_genres) > 10 else len(sorted_genres)
+
+        top_10_genres = dict(sorted_genres[:max])
 
         return top_10_genres
 
