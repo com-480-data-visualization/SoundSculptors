@@ -1,8 +1,6 @@
 import json
-
 import country_converter as coco
 from flask import Flask, request, jsonify
-
 import SpotifyHandler
 
 
@@ -12,8 +10,6 @@ class HttpHandler:
         self.app = Flask(__name__)
         self.port = port
         self.spotify_handler = spotify_handler
-
-
 
     def run(self):
         @self.app.route('/top_tracks', methods=['GET'])
@@ -84,5 +80,4 @@ class HttpHandler:
             except Exception as e:
                 return jsonify({"error": str(e)}), 500
 
-
-        self.app.run(threaded=True, port= self.port)
+        self.app.run(threaded=True, port=self.port)

@@ -1,5 +1,4 @@
 import logging
-
 import country_converter as coco
 from collections import Counter
 import json
@@ -12,12 +11,12 @@ class SpotifyHandler:
     def __init__(self, client_id, client_secret):
         client_credentials_manager = SpotifyClientCredentials(client_id = client_id, client_secret = client_secret)
         self.sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+        self.logger = logging.getLogger(__name__)
         self.country_top_sound_ids = {}
         self.initialize_cache()
 
     def initialize_cache(self):
-        # logging.log("Cache initialization...")
-        print("Cache initialization...")
+        self.logger.info("Cache initialization...")
         for country_code in self.sp.available_markets()['markets']:
             country_name = coco.convert(country_code, to="name_short", not_found="Global")
             playlist_id = self.get_top_tracks_playlist_id(country_name)
@@ -25,8 +24,7 @@ class SpotifyHandler:
                 continue
             self.country_top_sound_ids[country_code] = self.get_playlist_tracks(playlist_id)
 
-        # logging.log("Cache initialized")
-        print("Cache initialized")
+        self.logger.info("Cache initialized")
 
     def get_playlist_tracks(self, playlist_id):
         tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
