@@ -2,12 +2,14 @@ import json
 import country_converter as coco
 from flask import Flask, request, jsonify
 import SpotifyHandler
-
+from flask_cors import CORS, cross_origin
+  
 
 class HttpHandler:
 
     def __init__(self, port, spotify_handler: SpotifyHandler):
         self.app = Flask(__name__)
+        self.cors = CORS(self.app)
         self.port = port
         self.spotify_handler = spotify_handler
 

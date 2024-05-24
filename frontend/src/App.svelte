@@ -8,8 +8,8 @@ import * as d3chromatic from 'd3-scale-chromatic';
 import { color } from 'd3';
 import * as d3 from "d3";
 
-const BASE_URL = "http://127.0.0.1:5000"
-
+// const BASE_URL = "https://ktotam.pythonanywhere.com"
+const BASE_URL = "http://localhost:5000"
 
 $: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
 $: step = 1 / size;
@@ -255,7 +255,7 @@ let selectedSmallTitle = null;
             {/if}
         {:else if view == "radar"}
             <h2>Top songs average features in {selected?.properties.name ?? "??"}</h2>
-            <Radar bind:selected/>
+            <Radar BASE_URL bind:selected/>
         {:else if view == "genres"}
             <h2>Top genres in {selected?.properties.name}</h2>
             <div class="genres_container">
