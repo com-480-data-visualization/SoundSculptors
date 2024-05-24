@@ -3,6 +3,7 @@ import country_converter as coco
 from collections import Counter
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
+import time
 
 
 class SpotifyHandler:
@@ -16,6 +17,7 @@ class SpotifyHandler:
 
     def initialize_cache(self):
         self.logger.info("Cache initialization...")
+        start_time = time.time()
         for country_code in self.sp.available_markets()['markets']:
             country_name = coco.convert(country_code, to="name_short", not_found="Global")
             playlist_id = self.get_top_tracks_playlist_id(country_name)
@@ -23,7 +25,9 @@ class SpotifyHandler:
                 continue
             self.country_top_sound_ids[country_code] = self.get_playlist_tracks(playlist_id)
 
-        self.logger.info("Cache initialized")
+        end_time = time.time()
+        elapsed_time_minutes = (end_time - start_time) / 60
+        self.logger.info(f"Cache initialized. Time: {elapsed_time_minutes:.2f} min")
 
     def get_playlist_tracks(self, playlist_id):
         tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
