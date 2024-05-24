@@ -2,8 +2,6 @@ import logging
 from typing import Any
 
 import yaml
-from loguru import logger
-from pydantic import BaseModel, validator
 
 class AppConfig():
     def initialize(self, config_file='backend/config.yaml'):

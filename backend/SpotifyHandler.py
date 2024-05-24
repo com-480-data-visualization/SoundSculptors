@@ -1,8 +1,6 @@
 import logging
-
 import country_converter as coco
 from collections import Counter
-import json
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 
@@ -10,14 +8,14 @@ import spotipy
 class SpotifyHandler:
 
     def __init__(self, client_id, client_secret):
-        client_credentials_manager = SpotifyClientCredentials(client_id = client_id, client_secret = client_secret)
+        client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
         self.sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+        self.logger = logging.getLogger(__name__)
         self.country_top_sound_ids = {}
         self.initialize_cache()
 
     def initialize_cache(self):
-        # logging.log("Cache initialization...")
-        print("Cache initialization...")
+        self.logger.info("Cache initialization...")
         for country_code in self.sp.available_markets()['markets']:
             country_name = coco.convert(country_code, to="name_short", not_found="Global")
             playlist_id = self.get_top_tracks_playlist_id(country_name)
@@ -25,8 +23,7 @@ class SpotifyHandler:
                 continue
             self.country_top_sound_ids[country_code] = self.get_playlist_tracks(playlist_id)
 
-        # logging.log("Cache initialized")
-        print("Cache initialized")
+        self.logger.info("Cache initialized")
 
     def get_playlist_tracks(self, playlist_id):
         tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
@@ -41,7 +38,6 @@ class SpotifyHandler:
         else:
             return None
 
-
     def get_top_tracks_by_country(self, country_name):
         playlist_id = self.get_top_tracks_playlist_id(country_name)
         tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']
@@ -50,7 +46,6 @@ class SpotifyHandler:
             "artist": track['track']['artists'][0]['name'],
             "popularity": track['track']['popularity']
         } for track in tracks]
-
 
     def calculate_average_track_features(self, country_code):
         input_country_tracks = self.country_top_sound_ids.get(country_code, [])
@@ -140,7 +135,9 @@ class SpotifyHandler:
 
         sorted_genres = sorted(normalized_genre_distribution.items(), key=lambda x: x[1], reverse=True)
 
-        top_10_genres = dict(sorted_genres[:10])
+        max = 10 if len(sorted_genres) > 10 else len(sorted_genres)
+
+        top_10_genres = dict(sorted_genres[:max])
 
         return top_10_genres
 
@@ -161,5 +158,5 @@ class SpotifyHandler:
                     # Store similarity score
                     similarity_scores[cc] = similarity_score
                 except Exception as e:
-                    print(f"Error calculating similarity with country {cc}: {e}")
+                    self.logger.error(f"Error calculating similarity with country {cc}: {e}")
         return similarity_scores
