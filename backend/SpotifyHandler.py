@@ -4,6 +4,7 @@ from collections import Counter
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
 import time
+from flask import jsonify
 
 
 class SpotifyHandler:
@@ -113,7 +114,8 @@ class SpotifyHandler:
         playlist = self.sp.search("Top 50 - " + country_name, limit=1, type="playlist")
 
         if not playlist['playlists']['items']:
-            raise Exception("Top tracks playlist does not exist")
+            #raise Exception("Top tracks playlist does not exist")
+            return jsonify({"error": "Top tracks playlist does not exist"}), 404
 
         playlist_id = playlist['playlists']['items'][0]['uri']
         top_tracks = self.sp.playlist_tracks(playlist_id, limit=50)['items']

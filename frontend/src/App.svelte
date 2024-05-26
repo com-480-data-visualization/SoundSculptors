@@ -52,21 +52,29 @@ $: recolor(colors)
 $: genre_fetcher(selected) 
 let loadingGenre = false
 let genres = [];
+let errorMessage = "";
 let genre_fetcher = (selected) => {
-    if (selected!=null && selected != undefined) { 
+    if (selected != null && selected != undefined) {
         loadingGenre = true;
-        fetch(BASE_URL+"/top_genres?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
-                .then(x => x.json())
-                .then(x => {
-                    genres = Object.entries(x); // Assuming x is a dict of genre name and percentage
-                    loadingGenre = false;
-                })
-                .catch(err => {
-                    console.log(err);
-                    loadingGenre = false;
-                });
+        errorMessage = ""; // Reset the error message
+        fetch(BASE_URL + "/top_genres?country_code=" + iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error fetching top genres");
+                }
+                return response.json();
+            })
+            .then(data => {
+                genres = Object.entries(data); // Assuming data is a dict of genre name and percentage
+                loadingGenre = false;
+            })
+            .catch(err => {
+                console.log(err);
+                loadingGenre = false;
+                errorMessage = "Sorry! No data available for this country. Choose another one!";
+            });
     }
-}
+};
 
 // Related Artists
 let artistName = "";
@@ -107,43 +115,48 @@ const renderGraph = () => {
         .attr("height", height);
 
     const simulation = d3.forceSimulation(graphData.nodes)
-        .force("link", d3.forceLink(graphData.links).id(d => d.id))
-        .force("charge", d3.forceManyBody().strength(-200))
+        .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(100)) // Increase distance for longer edges
+        .force("charge", d3.forceManyBody().strength(-300)) // Increase strength for more spread out nodes
         .force("center", d3.forceCenter(width / 2, height / 2));
 
     const link = svg.append("g")
+        .attr("class", "links")
         .selectAll("line")
         .data(graphData.links)
         .enter()
         .append("line")
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 2)
         .attr("stroke", "#999");
 
     const node = svg.append("g")
+        .attr("class", "nodes")
         .selectAll("circle")
         .data(graphData.nodes)
         .enter()
         .append("circle")
         .attr("r", 10)
-        .attr("fill", d => d.group === 1 ? "blue" : "green")
+        .attr("fill", d => d.group === 1 ? "#e8f5e9" : "green")
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended))
         .on("click", (event, d) => {
-            fetchArtistDetails(d.id).then(details => {
-                artistDetails = details;
-            });
+            handleSubmit(d.id); // Call handleSubmit with the clicked artist's name
         });
+        
 
     const text = svg.append("g")
+        .attr("class", "labels")
         .selectAll("text")
         .data(graphData.nodes)
         .enter()
         .append("text")
         .attr("dy", -10)
         .attr("dx", 12)
-        .text(d => d.id);
+        .attr("font-size", d => d.id === artistName ? "18px" : "12px") // Larger font for central node
+        .attr("font-family", "Arial, sans-serif") 
+        .attr("font-weight", d => d.id === artistName ? "bold" : "normal") // Bold font for central node
+        .text(d => d.id === artistName ? d.id.toUpperCase() : d.id) // Capitalize central artist name
 
     simulation.on("tick", () => {
         link
@@ -158,7 +171,25 @@ const renderGraph = () => {
 
         text
             .attr("x", d => d.x)
-            .attr("y", d => d.y);
+            .attr("y", d => d.y)
+            .attr("dx", d => {
+                if (d.id === artistName) return 0; // Center text for central node
+                else if (d.x > width / 2) return 12; // Right side
+                else if (d.x < width / 2) return -12; // Left side
+                else return 0; // Center
+            })
+            .attr("dy", d => {
+                if (d.id === artistName) return 4; // Slight offset for readability
+                else if (d.y > height / 2) return 12; // Bottom side
+                else if (d.y < height / 2) return -12; // Top side
+                else return 0; // Center
+            })
+            .attr("text-anchor", d => {
+                if (d.id === artistName) return "middle"; // Center text for central node
+                else if (d.x > width / 2) return "start"; // Right side
+                else if (d.x < width / 2) return "end"; // Left side
+                else return "middle"; // Center
+            });
     });
 
     function dragstarted(event, d) {
@@ -179,15 +210,18 @@ const renderGraph = () => {
     }
 };
 
-const handleSubmit = () => {
-    fetchArtistDetails(artistName).then(details => {
+const handleSubmit = (name) => {
+    artistName = name; // Update the global artistName variable
+    fetchArtistDetails(name).then(details => {
         updateGraph(details);
         artistDetails = details;
     });
 };
 
-
-
+// handle the search button click
+const handleSearchClick = () => {
+    handleSubmit(artistName);
+};
 
 let view = "country-similarity"
 let selectedSmallTitle = null;
@@ -208,11 +242,7 @@ let selectedSmallTitle = null;
 
 <main>
 
-<!-- <div class="header">
-    <h3 class="header-item" on:click={() => view="country-similarity"} style={view=="country-similarity"?"text-decoration:underline":""}>Music Taste Similarities</h3> 
-    <h3 class="header-item" on:click={() => view="radar"} style={view=="radar"?"text-decoration:underline":""}>Country Music Radar</h3>   
-    <h3 class="header-item" on:click={() => view="listen-in"} style={view=="listen-in"?"text-decoration:underline":""}>Listen In</h3>  
-</div> -->
+
 <div class="map_container">
     <div class="map">
         {#if view == "country-similarity"}
@@ -246,30 +276,44 @@ let selectedSmallTitle = null;
     </div>
     <div>
         {#if view == "country-similarity"}
-            <h1>Top 10 songs in {selected?.properties.name ?? "Globally"}:</h1>
+        <div class="next_to_map_container">
+            <h2>Top 10 songs in {selected?.properties.name ?? "the world"}:</h2>
             {#if top_ten }
-                <div>
-                    {#each top_ten as song}
-                       <div>{song["name"]} by {song["artist"]}</div>
+                <div class="song-list">
+                    {#each top_ten as song, index}
+                        <div>{index + 1}. <span class="song-name">{song["name"]}</span> by {song["artist"]}</div>
                     {/each}
                 </div>
             {/if}
+        </div>
         {:else if view == "radar"}
-            <h2>Top songs average features in {selected?.properties.name ?? "??"}</h2>
-            <Radar {BASE_URL} bind:selected/>
+        <div class="next_to_map_container">
+            {#if selected!=null}
+                <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
+                <Radar {BASE_URL} bind:selected/>
+            {:else}
+                <p><center>Select a country to see the top songs average features!</center></p>
+            {/if}
+        </div>
         {:else if view == "genres"}
-            <h2>Top genres in {selected?.properties.name}</h2>
-            <div class="genres_container">
-                {#if genres.length > 0}
-                    {#each genres as [genre, percentage]}
-                        <div class="bar">
-                            <span>{genre}</span>
-                            <div style="width: {percentage}%;"></div>
-                            <span>{percentage}%</span>
-                        </div>
-                    {/each}
+            <div class="next_to_map_container">
+                {#if selected!=null}
+                    <h2>Top genres in {selected?.properties.name}</h2>
+                    {#if errorMessage!=""}
+                        <p><center>{errorMessage}</center></p>
+                    {:else if genres.length > 0}
+                        {#each genres as [genre, percentage]}
+                            <div class="bar">
+                                <span class="genre">{genre.charAt(0).toUpperCase()+ genre.slice(1).toLowerCase()}</span>
+                                <div class="bar-inner" style="width: {percentage}%;"></div>
+                                <span class="percentage">{percentage}%</span>
+                            </div>
+                        {/each}
+                    {:else}
+                        <p><center>Sorry! No data available for this country. Choose another one!</center></p>
+                    {/if}
                 {:else}
-                    <p>No data available.</p>
+                    <p><center>Select a country to see the top genres!</center></p>
                 {/if}
             </div>
 
@@ -279,24 +323,26 @@ let selectedSmallTitle = null;
     </div>
 </div>
 {#if view == "artists"}
-    <div class="input-container">
-        <label class="input-label">Write the name of an artist:</label>
-        <input type="text" bind:value={artistName} placeholder="Enter artist name here">
-        <button on:click={handleSubmit}>Search</button>
-    </div>
+<div class="input-container">
+    <label class="input-label">Write the name of an artist:</label>
+    <input type="text" bind:value={artistName} placeholder="Enter artist name here" on:keydown={(event) => event.key === 'Enter' && handleSubmit(artistName)}>
+    <button on:click={handleSearchClick}>Search</button>
+</div>
 
+<div class="main_container">
     <div class="graph_container">
         <div id="graph"></div>
-        {#if artistDetails}
-            <div class="details_container">
-                <img src={artistDetails.image_url} alt="Artist Picture" width="150">
-                <p>Artist name: {artistName}</p>
-                <p>Number of followers: {artistDetails.follower_number}</p>
-                <p>Popularity: {artistDetails.popularity}</p>
-                <p>Number of albums: {artistDetails.album_number}</p>
-            </div>
-        {/if}
     </div>
+    {#if artistDetails}
+        <div class="details_container">
+            <img src={artistDetails.image_url} alt="Artist Picture" width="180">
+            <p><strong>Artist name: {artistName.toUpperCase()}</strong></p>
+            <p>Number of followers: {artistDetails.follower_number}</p>
+            <p>Popularity: {artistDetails.popularity}</p>
+            <p>Number of albums: {artistDetails.album_number}</p>
+        </div>
+    {/if}
+</div>
 {/if}
 </main>
 
@@ -316,9 +362,7 @@ let selectedSmallTitle = null;
         display: flex;
         justify-content: space-evenly;
     }
-    .header-item:hover{
-        color: grey;
-    }
+   
     .loading {
         position:fixed;
         top: 15rem;
@@ -333,20 +377,51 @@ let selectedSmallTitle = null;
         display: flex;
         justify-content: space-evenly;
     }
-    .graph_container {
-    /* Style the container for the graph */
-    margin-top: 20px;
-    padding: 20px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    width: 50rem;
-    height: 30rem;
-  }
-
     .input-container {
-    /* Use flexbox to align items horizontally */
-    display: flex;
-    align-items: center; /* Center items vertically */
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .main_container {
+        display: flex;
+        align-items: center;
+    }
+
+    .graph_container {
+        flex: 3;
+        display: flex;
+        padding: 20px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        width: 50rem;
+        height: 30rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .details_container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        height: 30rem;
+    }
+
+    .input-label {
+        margin-right: 10px;
+    }
+
+    input[type="text"] {
+        padding: 5px;
+        margin-right: 10px;
+    }
+
+    button {
+        padding: 5px 10px;
     }
 
     .input-label {
@@ -355,23 +430,49 @@ let selectedSmallTitle = null;
     margin-right: 10px; /* Add margin to separate label from input */
     }
 
-    .genres_container {
+    .next_to_map_container {
     /* Style the container for the genres */
     display: flex;
+    flex: 1;  
     flex-direction: column;
     align-items: center;
+    gap: 10px;
+    border: 5px solid #ccc;
+    border-radius: 10px;
+    height: 30rem;
+    width: 28rem;
     }
 
     .bar {
         display: flex;
         align-items: center;
+        width: 100%;
     }
-    .bar div {
-        background-color: lightgray;
-        height: 20px;
+    
+    .genre {
+        width: 200px; /* Fixed width to align all bar labels */
+        text-align: left;
+        margin-right: 10px;
         margin-left: 10px;
     }
-    .details_container {
-        margin-left: 20px;
+
+    .bar-inner {
+        background-color: green;
+        height: 20px; /* Adjust height as needed */
+        margin-right: 10px;
     }
+
+    .percentage {
+        white-space: nowrap;
+    }
+    .song-list {
+    line-height: 1.8; /* Adjust this value as needed */
+    margin-left: 10px;
+    }
+    .song-name {
+        color: green;
+        font-weight: bold;
+    }
+
+
 </style>
