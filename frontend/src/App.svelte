@@ -9,7 +9,7 @@ import { color } from 'd3';
 import * as d3 from "d3";
 
 // const BASE_URL = "https://ktotam.pythonanywhere.com"
-const BASE_URL = "http://localhost:5000"
+const BASE_URL = "http://localhost:5001"
 
 $: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
 $: step = 1 / size;
@@ -49,6 +49,7 @@ $: recolor(colors)
 
 
 // Genres
+$: genre_fetcher(selected) 
 let loadingGenre = false
 let genres = [];
 let genre_fetcher = (selected) => {
@@ -56,8 +57,8 @@ let genre_fetcher = (selected) => {
         loadingGenre = true;
         fetch(BASE_URL+"/top_genres?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
                 .then(x => x.json())
-                .then(data => {
-                    genres = Object.entries(data); // Assuming data is a dict of genre name and percentage
+                .then(x => {
+                    genres = Object.entries(x); // Assuming x is a dict of genre name and percentage
                     loadingGenre = false;
                 })
                 .catch(err => {
@@ -255,7 +256,7 @@ let selectedSmallTitle = null;
             {/if}
         {:else if view == "radar"}
             <h2>Top songs average features in {selected?.properties.name ?? "??"}</h2>
-            <Radar BASE_URL bind:selected/>
+            <Radar {BASE_URL} bind:selected/>
         {:else if view == "genres"}
             <h2>Top genres in {selected?.properties.name}</h2>
             <div class="genres_container">
