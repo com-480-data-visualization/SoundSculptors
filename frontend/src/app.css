@@ -1,5 +1,6 @@
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif; /* Example font family */
+    margin: 0;
 }
 
 .chart-container {
@@ -12,6 +13,8 @@ header {
     background-color: #719b75; /* Example background color */
     color: #070101; /* Example text color */
     padding: 10px 20px; /* Adjust padding as needed */
+    /* display: flex;
+    justify-content: space-evenly; */
 }
 
 .title-container {
@@ -68,4 +71,143 @@ header {
 
 .button-container button:hover {
     background-color: #719b75; /* Darken background color on hover */
+}
+
+.map {
+    min-width: 60rem;
+}
+.map_container {
+    display:flex;
+    background-color: rgb(214, 226, 231); 
+
+}
+
+.loading {
+    position:fixed;
+    top: 15rem;
+    left: 25rem;
+}
+.gradient {
+    height: 1rem;
+    width: 20rem;
+}
+
+.similarity{
+    display: flex;
+    justify-content: space-evenly;
+}
+.input-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.main_container {
+    display: flex;
+    align-items: center;
+}
+
+.graph_container {
+    flex: 3;
+    display: flex;
+    padding: 20px;
+    border: 2px solid #000;
+    width: 50rem;
+    height: 30rem;
+    align-items: center;
+    justify-content: center;
+    margin-right: 5px;
+}
+
+.details_container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px solid #000;
+    height: 30rem;
+}
+
+input[type="text"] {
+    padding: 5px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 5px 10px;
+}
+
+.input-label {
+/* Style the label for the input */
+font-weight: bold;
+margin-right: 10px; /* Add margin to separate label from input */
+
+}
+
+.next_to_map_container {
+/* Style the container for the genres */
+display: flex;
+flex: 1;  
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 10px;
+border: 1px solid #000;
+width: 26rem;
+margin-top: 10px;
+padding: 20px;
+flex-grow: 1;
+background-color: white;
+}
+.radar-container {
+display: flex;
+flex: 1;  
+flex-direction: column;
+align-items: center;
+justify-content: center;
+border: 1px solid #000;
+height: 30rem;
+width: 26rem;
+margin-top: 10px;
+padding: 20px;
+background-color: white;
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.genre {
+    width: 200px; /* Fixed width to align all bar labels */
+    text-align: left;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.bar-inner {
+    background-color: green;
+    height: 20px; /* Adjust height as needed */
+    margin-right: 10px;
+}
+
+.percentage {
+    white-space: nowrap;
+}
+.song-list {
+line-height: 1.8; /* Adjust this value as needed */
+margin-left: 10px;
+}
+.song-name {
+    color: green;
+    font-weight: bold;
+}
+.error-message {
+    color: red;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
 }

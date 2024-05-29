@@ -56,34 +56,40 @@ class SpotifyHandler:
         input_country_tracks = self.country_top_sound_ids.get(country_code, [])
 
         if not input_country_tracks:
-            raise Exception("Tracks does not exist")
+            raise ValueError("Tracks do not exist for the specified country code")
 
         average_features = {
-            "acousticness": 0,
-            "danceability": 0,
-            "duration_ms": 0,
-            "energy": 0,
-            "speechiness": 0,
-            "tempo": 0
+            "acousticness": 0.0,
+            "danceability": 0.0,
+            "duration_ms": 0.0,
+            "energy": 0.0,
+            "speechiness": 0.0,
+            "tempo": 0.0
         }
 
         track_feature_list = self.sp.audio_features(input_country_tracks)
 
-        for track_feature in track_feature_list:
-            average_features["acousticness"] += track_feature["acousticness"] or 0
-            average_features["danceability"] += track_feature["danceability"] or 0
-            average_features["duration_ms"] += track_feature["duration_ms"] or 0
-            average_features["energy"] += track_feature["energy"] or 0
-            average_features["speechiness"] += track_feature["speechiness"] or 0
-            average_features["tempo"] += track_feature["tempo"] or 0
+        valid_track_count = 0
 
-        num_tracks = len(input_country_tracks)
-        if num_tracks > 0:
-            for feature in average_features:
-                average_features[feature] /= num_tracks
-                average_features[feature] = round(average_features[feature], 3)
+        for track_feature in track_feature_list:
+            if track_feature:
+                average_features["acousticness"] += track_feature.get("acousticness", 0)
+                average_features["danceability"] += track_feature.get("danceability", 0)
+                average_features["duration_ms"] += track_feature.get("duration_ms", 0)
+                average_features["energy"] += track_feature.get("energy", 0)
+                average_features["speechiness"] += track_feature.get("speechiness", 0)
+                average_features["tempo"] += track_feature.get("tempo", 0)
+                valid_track_count += 1
+
+        if valid_track_count == 0:
+            raise ValueError("No valid track features found for the specified country code")
+
+        for feature in average_features:
+            average_features[feature] /= valid_track_count
+            average_features[feature] = round(average_features[feature], 3)
 
         return average_features
+
 
     def get_artist_details(self, artist_name):
         results = self.sp.search(artist_name, limit=1, type="artist")

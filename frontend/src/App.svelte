@@ -1,5 +1,5 @@
 <script>
-import Radar from './lib/graph.svelte'
+import Radar from './lib/radar.svelte'
 import Map from './lib/map.svelte'
 import { onMount } from "svelte";
 import {markets, iso2CodesByCountryName} from './lib/markets'
@@ -277,7 +277,7 @@ let selectedSmallTitle = null;
     <div>
         {#if view == "country-similarity"}
         <div class="next_to_map_container">
-            <h2>Top 10 songs in {selected?.properties.name ?? "the world"}:</h2>
+            <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
             {#if top_ten }
                 <div class="song-list">
                     {#each top_ten as song, index}
@@ -287,20 +287,20 @@ let selectedSmallTitle = null;
             {/if}
         </div>
         {:else if view == "radar"}
-        <div class="next_to_map_container">
+        <div class="radar-container">
             {#if selected!=null}
                 <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
                 <Radar {BASE_URL} bind:selected/>
             {:else}
-                <p><center>Select a country to see the top songs average features!</center></p>
+            <span class="error-message">Select a country to see the top songs average features!</span>
             {/if}
         </div>
         {:else if view == "genres"}
             <div class="next_to_map_container">
                 {#if selected!=null}
-                    <h2>Top genres in {selected?.properties.name}</h2>
+                    <h2><center>Top genres in {selected?.properties.name}</center></h2>
                     {#if errorMessage!=""}
-                        <p><center>{errorMessage}</center></p>
+                    <span class="error-message">{errorMessage}</span>
                     {:else if genres.length > 0}
                         {#each genres as [genre, percentage]}
                             <div class="bar">
@@ -310,10 +310,10 @@ let selectedSmallTitle = null;
                             </div>
                         {/each}
                     {:else}
-                        <p><center>Sorry! No data available for this country. Choose another one!</center></p>
+                        <span class="error-message">Sorry! No data available for this country. Choose another one!</span>
                     {/if}
                 {:else}
-                    <p><center>Select a country to see the top genres!</center></p>
+                    <span class="error-message">Select a country to see the top genres!</span>
                 {/if}
             </div>
 
@@ -346,133 +346,3 @@ let selectedSmallTitle = null;
 {/if}
 </main>
 
-<style>
-    .map {
-        /* background-color: green; */
-        /* width: wrap-content; */
-        /* min-height: 40rem; */
-        min-width: 60rem;
-        /* max-width: 8000rem; */ 
-    }
-    .map_container {
-        display:flex;
-        /* background-color: green; */
-    }
-    .header {
-        display: flex;
-        justify-content: space-evenly;
-    }
-   
-    .loading {
-        position:fixed;
-        top: 15rem;
-        left: 25rem;
-    }
-    .gradient {
-		height: 1rem;
-        width: 20rem;
-	}
-
-    .similarity{
-        display: flex;
-        justify-content: space-evenly;
-    }
-    .input-container {
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-
-    .main_container {
-        display: flex;
-        align-items: center;
-    }
-
-    .graph_container {
-        flex: 3;
-        display: flex;
-        padding: 20px;
-        border: 2px solid #ccc;
-        border-radius: 5px;
-        width: 50rem;
-        height: 30rem;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .details_container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        border: 2px solid #ccc;
-        border-radius: 5px;
-        height: 30rem;
-    }
-
-    .input-label {
-        margin-right: 10px;
-    }
-
-    input[type="text"] {
-        padding: 5px;
-        margin-right: 10px;
-    }
-
-    button {
-        padding: 5px 10px;
-    }
-
-    .input-label {
-    /* Style the label for the input */
-    font-weight: bold;
-    margin-right: 10px; /* Add margin to separate label from input */
-    }
-
-    .next_to_map_container {
-    /* Style the container for the genres */
-    display: flex;
-    flex: 1;  
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    border: 5px solid #ccc;
-    border-radius: 10px;
-    height: 30rem;
-    width: 28rem;
-    }
-
-    .bar {
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .genre {
-        width: 200px; /* Fixed width to align all bar labels */
-        text-align: left;
-        margin-right: 10px;
-        margin-left: 10px;
-    }
-
-    .bar-inner {
-        background-color: green;
-        height: 20px; /* Adjust height as needed */
-        margin-right: 10px;
-    }
-
-    .percentage {
-        white-space: nowrap;
-    }
-    .song-list {
-    line-height: 1.8; /* Adjust this value as needed */
-    margin-left: 10px;
-    }
-    .song-name {
-        color: green;
-        font-weight: bold;
-    }
-
-
-</style>

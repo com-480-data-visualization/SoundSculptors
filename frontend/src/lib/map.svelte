@@ -47,8 +47,7 @@
 			.then(d => d.json()).catch(err => console.log(err))
 		console.log({ us })
 		
-		// states = topojson.feature(us, us.objects.states).features;
-		// console.log({ features })
+		
 		const bad = ["Antarctica", "Fr. Polynesia", ]
 		countries = topojson.feature(us, us.objects.countries).features.filter(x => !bad.includes(x.properties.name));
 
@@ -56,6 +55,9 @@
 		
 		console.log({ countries, mesh })
 	})
+	function getColor(name) {
+    	return colors[iso2CodesByCountryName[name.toLowerCase()]] || 'white';
+ 	 }
 </script>
 
 <svg viewBox="-25 -100 {width} {height}">
@@ -64,7 +66,13 @@
 		{#each countries as feature, i}
             {#if iso2CodesByCountryName[feature.properties.name.toLowerCase()] in colors}
 				<path d={path(feature)} on:click={() => selected = feature} style={`fill:${colors[iso2CodesByCountryName[feature.properties.name.toLowerCase()]]};`}  />
-				<!-- in:draw={{ delay: i * 50, duration: 1000 }} //use later this is cool--> 
+				<!-- <path
+				d={path(feature)}
+				on:click={() => selected = feature}
+				class="state {selected === feature ? 'selected' : ''}"
+				style="fill: {selected === feature ? 'green' : getColor(feature.properties.name)};"
+				/> -->
+				in:draw={{ delay: i * 50, duration: 1000 }} 
             {:else if markets.includes(iso2CodesByCountryName[feature.properties.name.toLowerCase()])}
 				<path d={path(feature)} on:click={() => selected = feature} class="state"  />
 
@@ -84,12 +92,12 @@
 	<!-- {#each countries as feature, i}
 	  <path d={path(feature)} on:click={() => selected = feature} class="state" stroke="rgb(0 0 0 / 10%)" fill="none" />
 	{/each}
-	 -->
-	<!-- {#each points as [cx, cy]}
+	 
+	{#each points as [cx, cy]}
 		<circle {cx} {cy} r={10} fill="black" />
 		<circle {cx} {cy} r={8} fill="white" />
 		<circle {cx} {cy} r={5} fill="black" />
-	{/each} -->
+	{/each}  -->
 </svg>
 
 <!-- <div class="selectedName">{"Countries with most similar music tastes to: "+ selected?.properties.name ?? ''}</div> -->
@@ -97,11 +105,11 @@
 <style>
 	.state{
 		fill: lightgreen;
+		cursor: pointer;
 	}
 	.state:hover {
 		fill: hsl(0 0% 50% / 20%);
 	}
-
 	
 	.selectedName {
 		text-align: center;
