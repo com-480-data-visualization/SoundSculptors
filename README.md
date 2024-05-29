@@ -77,8 +77,27 @@ You can access the first version of our website following these steps:
 
 ## Milestone 3 (31st May, 5pm)
 
-**80% of the final grade**
+### Backend 
+The backend project is a Python-based application designed to directly communicate with the [Spotify API](https://developer.spotify.com/documentation). It fetches music-related data, computes various statistics, and aggregates the results to provide insights, which in turn is fed into the front end. 
 
+#### Installation
+
+> Requires Python >= 3.8
+
+<ol>
+  <li>Install the required packages:
+    <pre><code>cd backend && pip3 install -r requirements.txt</code></pre>
+  </li>
+  <li>Edit the <code>config.yaml</code> file located in the <code>backend</code> directory with your <strong>SPOTIPY_CLIENT_ID</strong> and <strong>SPOTIPY_CLIENT_SECRET</strong>.</li>
+  <li>To start the application, run the following command:
+    <pre><code>cd .. && python3 backend/app.py</code></pre>
+  </li>
+</ol>
+
+### Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
 
 ## Late policy
 
