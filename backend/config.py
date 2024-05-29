@@ -1,7 +1,7 @@
 import logging
-from typing import Any
 
 import yaml
+
 
 class AppConfig():
     def initialize(self, config_file='backend/config.yaml'):
