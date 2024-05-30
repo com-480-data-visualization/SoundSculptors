@@ -1,12 +1,16 @@
 <script>
 import Radar from './lib/radar.svelte'
 import Map from './lib/map.svelte'
+import logo from './assets/spotify_logo.png';
+import note from './assets/musical-note.png';
+import spotify from './assets/spotify.png';
 import { onMount } from "svelte";
 import {markets, iso2CodesByCountryName} from './lib/markets'
 import { RingLoader } from 'svelte-loading-spinners';
 import * as d3chromatic from 'd3-scale-chromatic';
 import { color } from 'd3';
 import * as d3 from "d3";
+
 
 // const BASE_URL = "https://ktotam.pythonanywhere.com"
 const BASE_URL = "http://localhost:5001"
@@ -223,8 +227,8 @@ const handleSearchClick = () => {
     handleSubmit(artistName);
 };
 
-let view = "country-similarity"
-let selectedSmallTitle = null;
+let view = "introduction"
+let selectedSmallTitle = "introduction";
 
 </script>
 
@@ -232,6 +236,7 @@ let selectedSmallTitle = null;
     <div class="title-container">
         <h1 class="big-title">SoundSculptors</h1>
         <div class="small-titles">
+            <span class="small-title {selectedSmallTitle === 'introduction' ? 'selected' : ''}" on:click={() => { selectedSmallTitle = 'introduction'; view = 'introduction'; }}>Introduction</span>
             <span class="small-title {selectedSmallTitle === 'similarities' ? 'selected' : ''}" on:click={() => { selectedSmallTitle = 'similarities'; view = 'country-similarity'; }}>Music taste similarities</span>
             <span class="small-title {selectedSmallTitle === 'characteristics' ? 'selected' : ''}" on:click={() => {selectedSmallTitle = 'characteristics';view="radar"}}>Characteristics</span>
             <span class="small-title {selectedSmallTitle === 'genres' ? 'selected' : ''}" on:click={() => {selectedSmallTitle = 'genres'; view="genres"}}>Genres</span>
@@ -243,85 +248,109 @@ let selectedSmallTitle = null;
 <main>
 
 
+{#if view == "introduction"}
+    <div class="introduction">
+        <img src={note} alt="Musical Note" width="80" height="80">
+        <h2>Welcome to SoundSculptors!</h2>
+        <img src={spotify} alt="Spotify" width="80" height="80">
+        <p>SoundSculptors is a web application created in the context of Data Visualization course in Spring 2024 at EPFL.</p>
+        <p>Our Website allows you to explore music taste similarities between different countries,</p>
+        <p>view the top genres in a specific country, and discover related artists based on a given artist's name.</p>
+        <p>Use the navigation bar above to switch between the different views.</p>
+        <p>Enjoy exploring the world of music!</p>
+        <p><strong>Website created by:</strong></p>
+            <p>Yasmine Chaker</p>
+            <p>Alexander Mueller</p>
+            <p>Tymur Tytarenko</p>
+        <p>Using data from <a href="https://developer.spotify.com/documentation/web-api" target="_blank">Spotify API</a>.</p>
+        
+        <img src={logo} alt="Logo" width="80" height="80">
+        <p><strong>Icons made by:</strong></p>
+        <a href="https://www.flaticon.com/free-icons/music" title="music icons">Music icons created by Freepik - Flaticon</a>
+        <a href="https://www.flaticon.com/free-icons/spotify" title="spotify icons">Spotify icons created by Freepik - Flaticon</a>
+        <a href="https://www.flaticon.com/free-icons/spotify-sketch" title="spotify sketch icons">Spotify sketch icons created by Pixel perfect - Flaticon</a>
+    </div>
+{/if}
+
 <div class="map_container">
     <div class="map">
-        {#if view == "country-similarity"}
-            {#if loadingSimilarity}
-                <div class="loading">
-                    <RingLoader />
-                </div>
-            {/if}
-            <Map bind:selected colors={colorMap} />
-            <div class="similarity">
-                Least similar music taste <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})" /> Most similar music taste
-                <select bind:value={interpolator}>
-                    {#each interpolators as option}
-                    <option value={option[1]}>{option[0]}</option>
-                    {/each}
-                </select>
-            </div>
-        {:else if view == "radar"}
-            <Map bind:selected /> 
-        {:else if view == "genres"}
-            {#if loadingGenre}
-                <div class="loading">
-                    <RingLoader />
-                </div>
-            {/if}
-            <Map bind:selected /> 
-        {:else if view == "listen-in"}
-            <Map bind:selected  />
+      {#if view === "country-similarity"}
+        {#if loadingSimilarity}
+          <div class="loading">
+            <RingLoader />
+          </div>
         {/if}
-
-    </div>
-    <div>
-        {#if view == "country-similarity"}
-        <div class="next_to_map_container">
-            <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
-            {#if top_ten }
-                <div class="song-list">
-                    {#each top_ten as song, index}
-                        <div>{index + 1}. <span class="song-name">{song["name"]}</span> by {song["artist"]}</div>
-                    {/each}
-                </div>
-            {/if}
+        <Map bind:selected {colorMap} />
+        <div class="similarity">
+          Least similar music taste
+          <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})"></div>
+          Most similar music taste
+          <select bind:value={interpolator}>
+            {#each interpolators as option}
+              <option value={option[1]}>{option[0]}</option>
+            {/each}
+          </select>
         </div>
-        {:else if view == "radar"}
-        <div class="radar-container">
-            {#if selected!=null}
-                <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
-                <Radar {BASE_URL} bind:selected/>
-            {:else}
-            <span class="error-message">Select a country to see the top songs average features!</span>
-            {/if}
-        </div>
-        {:else if view == "genres"}
-            <div class="next_to_map_container">
-                {#if selected!=null}
-                    <h2><center>Top genres in {selected?.properties.name}</center></h2>
-                    {#if errorMessage!=""}
-                    <span class="error-message">{errorMessage}</span>
-                    {:else if genres.length > 0}
-                        {#each genres as [genre, percentage]}
-                            <div class="bar">
-                                <span class="genre">{genre.charAt(0).toUpperCase()+ genre.slice(1).toLowerCase()}</span>
-                                <div class="bar-inner" style="width: {percentage}%;"></div>
-                                <span class="percentage">{percentage}%</span>
-                            </div>
-                        {/each}
-                    {:else}
-                        <span class="error-message">Sorry! No data available for this country. Choose another one!</span>
-                    {/if}
-                {:else}
-                    <span class="error-message">Select a country to see the top genres!</span>
-                {/if}
-            </div>
-
-        {:else if view == "listen-in"}
-            <h1>Listen in [selected country]</h1>
+      {:else if view === "radar"}
+        <Map bind:selected /> 
+      {:else if view === "genres"}
+        {#if loadingGenre}
+          <div class="loading">
+            <RingLoader />
+          </div>
         {/if}
+        <Map bind:selected /> 
+      {:else if view === "listen-in"}
+        <Map bind:selected />
+      {/if}
     </div>
-</div>
+  
+    {#if view === "country-similarity"}
+      <div class="next_to_map_container">
+        <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
+        {#if top_ten}
+          <div class="song-list">
+            {#each top_ten as song, index}
+              <div>{index + 1}. <span class="song-name">{song.name}</span> by {song.artist}</div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {:else if view === "radar"}
+      <div class="radar-container">
+        {#if selected}
+          <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
+          <Radar {BASE_URL} bind:selected />
+        {:else}
+          <span class="error-message">Select a country to see the top songs average features!</span>
+        {/if}
+      </div>
+    {:else if view === "genres"}
+      <div class="next_to_map_container">
+        {#if selected}
+          <h2><center>Top genres in {selected?.properties.name}</center></h2>
+          {#if errorMessage !== ""}
+            <span class="error-message">{errorMessage}</span>
+          {:else if genres.length > 0}
+            {#each genres as [genre, percentage]}
+              <div class="bar">
+                <span class="genre">{genre.charAt(0).toUpperCase() + genre.slice(1).toLowerCase()}</span>
+                <div class="bar-inner" style="width: {percentage}%;"></div>
+                <span class="percentage">{percentage}%</span>
+              </div>
+            {/each}
+          {:else}
+            <span class="error-message">Sorry! No data available for this country. Choose another one!</span>
+          {/if}
+        {:else}
+          <span class="error-message">Select a country to see the top genres!</span>
+        {/if}
+      </div>
+    {:else if view === "listen-in"}
+      <h1>Listen in {selected?.properties.name ?? "[selected country]"}</h1>
+    {/if}
+  </div>
+
 {#if view == "artists"}
 <div class="input-container">
     <label class="input-label">Write the name of an artist:</label>

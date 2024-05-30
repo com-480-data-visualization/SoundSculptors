@@ -50,6 +50,16 @@ header {
     color: #273602e5; /* Change color */
 }
 
+.introduction {
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: rgb(190, 216, 190);
+    font-size: 18px; /* Adjust font size as needed */
+    height: 50rem;
+}
+
 .button-container {
     margin-top: 20px;
     margin-bottom: 20px; /* Add some spacing between the buttons and the title */
@@ -79,7 +89,7 @@ header {
 .map_container {
     display:flex;
     background-color: rgb(214, 226, 231); 
-
+    height: 50rem;
 }
 
 .loading {
