@@ -138,14 +138,31 @@ const renderGraph = () => {
         .data(graphData.nodes)
         .enter()
         .append("circle")
-        .attr("r", 10)
+        .attr("r", d => d.group === 1 ? 30 : 12)
         .attr("fill", d => d.group === 1 ? "#e8f5e9" : "green")
+        .style("cursor", d => d.group !== 1 ? "pointer" : "default") // Change cursor to pointer if group != 1
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended))
         .on("click", (event, d) => {
             handleSubmit(d.id); // Call handleSubmit with the clicked artist's name
+        })
+        .on("mouseover", function(event, d) {
+        if (d.group !== 1) {
+            d3.select(this)
+              .transition()
+              .duration(100)
+              .attr("r", d.group === 1 ? 30 : 17); // Increase radius on hover if id != 1
+        }
+        })
+        .on("mouseout", function(event, d) {
+            if (d.group !== 1) {
+                d3.select(this)
+                  .transition()
+                  .duration(100)
+                  .attr("r", d.group === 1 ? 30 : 12); // Reset radius when not hovering if id != 1
+            }
         });
         
 
@@ -157,7 +174,7 @@ const renderGraph = () => {
         .append("text")
         .attr("dy", -10)
         .attr("dx", 12)
-        .attr("font-size", d => d.id === artistName ? "18px" : "12px") // Larger font for central node
+        .attr("font-size", d => d.id === artistName ? "18px" : "13px") // Larger font for central node
         .attr("font-family", "Arial, sans-serif") 
         .attr("font-weight", d => d.id === artistName ? "bold" : "normal") // Bold font for central node
         .text(d => d.id === artistName ? d.id.toUpperCase() : d.id) // Capitalize central artist name
@@ -178,21 +195,23 @@ const renderGraph = () => {
             .attr("y", d => d.y)
             .attr("dx", d => {
                 if (d.id === artistName) return 0; // Center text for central node
-                else if (d.x > width / 2) return 12; // Right side
-                else if (d.x < width / 2) return -12; // Left side
-                else return 0; // Center
+                const offset = 15;
+                if (d.x > width / 2) return offset; // Right side
+                if (d.x < width / 2) return -offset; // Left side
+                return 0; // Center
             })
             .attr("dy", d => {
                 if (d.id === artistName) return 4; // Slight offset for readability
-                else if (d.y > height / 2) return 12; // Bottom side
-                else if (d.y < height / 2) return -12; // Top side
-                else return 0; // Center
+                const offset = 15;
+                if (d.y > height / 2) return offset; // Bottom side
+                if (d.y < height / 2) return -offset; // Top side
+                return 0; // Center
             })
             .attr("text-anchor", d => {
                 if (d.id === artistName) return "middle"; // Center text for central node
-                else if (d.x > width / 2) return "start"; // Right side
-                else if (d.x < width / 2) return "end"; // Left side
-                else return "middle"; // Center
+                if (d.x > width / 2) return "start"; // Right side
+                if (d.x < width / 2) return "end"; // Left side
+                return "middle"; // Center
             });
     });
 
@@ -264,10 +283,10 @@ let selectedSmallTitle = "introduction";
         <p>Using data from <a href="https://developer.spotify.com/documentation/web-api" target="_blank">Spotify API</a>.</p>
         
         <img src={logo} alt="Logo" width="80" height="80">
-        <p><strong>Icons made by:</strong></p>
-        <a href="https://www.flaticon.com/free-icons/music" title="music icons">Music icons created by Freepik - Flaticon</a>
-        <a href="https://www.flaticon.com/free-icons/spotify" title="spotify icons">Spotify icons created by Freepik - Flaticon</a>
-        <a href="https://www.flaticon.com/free-icons/spotify-sketch" title="spotify sketch icons">Spotify sketch icons created by Pixel perfect - Flaticon</a>
+        <p class="small-text"><strong>Icons from:</strong></p>
+        <a href="https://www.flaticon.com/free-icons/music" title="music icons" class="small-text">Music icons created by Freepik - Flaticon</a>
+        <a href="https://www.flaticon.com/free-icons/spotify" title="spotify icons" class="small-text">Spotify icons created by Freepik - Flaticon</a>
+        <a href="https://www.flaticon.com/free-icons/spotify-sketch" title="spotify sketch icons" class="small-text">Spotify sketch icons created by Pixel perfect - Flaticon</a>
     </div>
 {/if}
 
@@ -319,6 +338,15 @@ let selectedSmallTitle = "introduction";
           {#if selected}
             <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
             <Radar {BASE_URL} bind:selected />
+            <div class="feature-ranges">
+              <p><strong>Feature Ranges:</strong></p>
+              <p>Danceability: 0-1</p>
+              <p>Speechiness: 0-1</p>
+              <p>Energy: 0-1</p>
+              <p>Acousticness: 0-1</p>
+              <p>Tempo: 0-200 BPM</p>
+              <p>Duration: 0-8 minutes</p>
+            </div>
           {:else}
             <span class="error-message">Select a country to see the top songs average features!</span>
           {/if}
@@ -353,25 +381,25 @@ let selectedSmallTitle = "introduction";
 
 
 {#if view == "artists"}
-<div class="input-container">
-    <label class="input-label">Write the name of an artist:</label>
-    <input type="text" bind:value={artistName} placeholder="Enter artist name here" on:keydown={(event) => event.key === 'Enter' && handleSubmit(artistName)}>
-    <button on:click={handleSearchClick}>Search</button>
-</div>
-
 <div class="main_container">
-    <div class="graph_container">
-        <div id="graph"></div>
-    </div>
-    {#if artistDetails}
-        <div class="details_container">
-            <img src={artistDetails.image_url} alt="Artist Picture" width="180">
-            <p><strong>Artist name: {artistName.toUpperCase()}</strong></p>
-            <p>Number of followers: {artistDetails.follower_number}</p>
-            <p>Popularity: {artistDetails.popularity}</p>
-            <p>Number of albums: {artistDetails.album_number}</p>
-        </div>
-    {/if}
+  <div class="input-container">
+      <label class="input-label">Write the name of an artist:</label>
+      <input type="text" bind:value={artistName} placeholder="Enter artist name here" on:keydown={(event) => event.key === 'Enter' && handleSubmit(artistName)}>
+      <button on:click={handleSearchClick}>Search</button>
+  </div>
+
+  <div class="graph_container">
+      <div id="graph"></div>
+  </div>
+  {#if artistDetails}
+      <div class="details_container">
+          <img src={artistDetails.image_url} alt="Artist Picture" width="180">
+          <p><strong>Artist name: {artistName.toUpperCase()}</strong></p>
+          <p>Number of followers: {artistDetails.follower_number}</p>
+          <p>Popularity: {artistDetails.popularity}</p>
+          <p>Number of albums: {artistDetails.album_number}</p>
+      </div>
+  {/if}
 </div>
 {/if}
 </main>

@@ -66,7 +66,8 @@
 		<text
 			text-anchor="{anchor($config.x.length, i)}"
 			dy="0.35em"
-			font-size="12px"
+			font-size="16px"
+			fill = "#1b5e20"
 			transform="translate({(labelPlacement) * Math.cos(thisAngleSlice)}, {labelPlacement * Math.sin(thisAngleSlice)})">{label}</text>
 	{/each}
 </g>

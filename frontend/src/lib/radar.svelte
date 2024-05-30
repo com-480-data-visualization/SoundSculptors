@@ -11,20 +11,19 @@
 
 	export let selected;
 	let loading = false;
-	let data = [{
-		country: 'USA',
-		danceability: .5,
-		speechiness: .1,
-		energy: .6,
-		acousticness: .8,
-		tempo: 0,
-        duration_ms: .6,
-	},];
+	let data = [{}];
 	const TEMPO_MAX = 200;
 	const DURATION_MS_MAX = 480000; // 8 minutes
+	let errorMessage = "";
 	let fetcher = (selected) => {
 		loading = true
-		fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
+		fetch(BASE_URL+"/radar_similarity?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
+			.then(response => {
+                if (!response.ok) {
+                    throw new Error("Error fetching features!");
+                }
+                return response.json();
+            })
 			.then(x =>{
 				x["tempo"] /= TEMPO_MAX
 				x["duration_ms"] /= DURATION_MS_MAX
@@ -32,6 +31,11 @@
 				console.log(data)
 				loading = false;
 			} )
+            .catch(err => {
+                console.log(err);
+                loading = false;
+                errorMessage = "Sorry! No data available for this country. Choose another one!";
+            });
 	} 
 	$: fetcher(selected)
 	$: console.log(data)
@@ -71,12 +75,11 @@
     	min-width : 30rem;
 		width: 70%;
 		height: 70%;
-		flex-grow: 1;
+		/* flex-grow: 1; */
 	}
 </style>
 
 <div class="chart-container">
-	
 	{#if !selected}
 		<p>Click on a country to see its music radar!</p>
 	{:else}
@@ -85,10 +88,11 @@
                     <RingLoader />
                 </div>
    		{:else}
-			{#if 'error' in data[0]}
-				<p>Spotify servers are experiencing high load at this time, please try again later.</p>
+			{#if errorMessage}
+				<p>{errorMessage}</p>
+			{:else if data.length === 0	}
+					<p>No data available for this country. Choose another one!</p>
 			{:else}
-				
 				<LayerCake
 					padding={{ top: 40, right: 10, bottom: 7, left: 10 }}
 					x={xKey}
