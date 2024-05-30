@@ -94,6 +94,12 @@ The backend project is a Python-based application designed to directly communica
   </li>
 </ol>
 
+### Frontend
+The frontend is a Svelte based static website. It fetches results from our python backend. 
+#### Installation
+> Requires Node.js
+Run ```npm install```
+Run ```npm run dev```
 ### Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
