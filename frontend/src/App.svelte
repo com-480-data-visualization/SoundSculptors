@@ -247,7 +247,6 @@ let selectedSmallTitle = "introduction";
 
 <main>
 
-
 {#if view == "introduction"}
     <div class="introduction">
         <img src={note} alt="Musical Note" width="80" height="80">
@@ -272,84 +271,86 @@ let selectedSmallTitle = "introduction";
     </div>
 {/if}
 
-<div class="map_container">
-    <div class="map">
-      {#if view === "country-similarity"}
-        {#if loadingSimilarity}
-          <div class="loading">
-            <RingLoader />
-          </div>
+{#if view === "country-similarity" || view === "radar" || view === "genres" || view === "listen-in"}
+    <div class="map_container">
+      <div class="map">
+        {#if view === "country-similarity"}
+          {#if loadingSimilarity}
+            <div class="loading">
+              <RingLoader />
+            </div>
+          {/if}
+          <Map bind:selected colors={colorMap} />
+            <div class="similarity">
+                Least similar music taste <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})" /> Most similar music taste
+                <select bind:value={interpolator}>
+                    {#each interpolators as option}
+                    <option value={option[1]}>{option[0]}</option>
+                    {/each}
+                </select>
+            </div>
+        {:else if view === "radar"}
+          <Map bind:selected /> 
+        {:else if view === "genres"}
+          {#if loadingGenre}
+            <div class="loading">
+              <RingLoader />
+            </div>
+          {/if}
+          <Map bind:selected /> 
+        {:else if view === "listen-in"}
+          <Map bind:selected />
         {/if}
-        <Map bind:selected {colorMap} />
-        <div class="similarity">
-          Least similar music taste
-          <div class="gradient" style="background: linear-gradient(90deg, {colors.join(', ')})"></div>
-          Most similar music taste
-          <select bind:value={interpolator}>
-            {#each interpolators as option}
-              <option value={option[1]}>{option[0]}</option>
-            {/each}
-          </select>
+      </div>
+    
+      {#if view === "country-similarity"}
+        <div class="next_to_map_container">
+          <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
+          {#if top_ten}
+            <div class="song-list">
+              {#each top_ten as song, index}
+                <div>{index + 1}. <span class="song-name">{song.name}</span> by {song.artist}</div>
+              {/each}
+            </div>
+          {/if}
         </div>
       {:else if view === "radar"}
-        <Map bind:selected /> 
+        <div class="radar-container">
+          {#if selected}
+            <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
+            <Radar {BASE_URL} bind:selected />
+          {:else}
+            <span class="error-message">Select a country to see the top songs average features!</span>
+          {/if}
+        </div>
       {:else if view === "genres"}
-        {#if loadingGenre}
-          <div class="loading">
-            <RingLoader />
-          </div>
-        {/if}
-        <Map bind:selected /> 
+        <div class="next_to_map_container">
+          {#if selected}
+            <h2><center>Top genres in {selected?.properties.name}</center></h2>
+            {#if errorMessage !== ""}
+              <span class="error-message">{errorMessage}</span>
+            {:else if genres.length > 0}
+              {#each genres as [genre, percentage]}
+                <div class="bar">
+                  <span class="genre">{genre.charAt(0).toUpperCase() + genre.slice(1).toLowerCase()}</span>
+                  <div class="bar-inner" style="width: {percentage}%;"></div>
+                  <span class="percentage">{percentage}%</span>
+                </div>
+              {/each}
+            {:else}
+              <span class="error-message">Sorry! No data available for this country. Choose another one!</span>
+            {/if}
+          {:else}
+            <span class="error-message">Select a country to see the top genres!</span>
+          {/if}
+        </div>
       {:else if view === "listen-in"}
-        <Map bind:selected />
+        <h1>Listen in {selected?.properties.name ?? "[selected country]"}</h1>
       {/if}
     </div>
-  
-    {#if view === "country-similarity"}
-      <div class="next_to_map_container">
-        <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
-        {#if top_ten}
-          <div class="song-list">
-            {#each top_ten as song, index}
-              <div>{index + 1}. <span class="song-name">{song.name}</span> by {song.artist}</div>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    {:else if view === "radar"}
-      <div class="radar-container">
-        {#if selected}
-          <h2><center>Top songs average features in {selected?.properties.name}</center></h2>
-          <Radar {BASE_URL} bind:selected />
-        {:else}
-          <span class="error-message">Select a country to see the top songs average features!</span>
-        {/if}
-      </div>
-    {:else if view === "genres"}
-      <div class="next_to_map_container">
-        {#if selected}
-          <h2><center>Top genres in {selected?.properties.name}</center></h2>
-          {#if errorMessage !== ""}
-            <span class="error-message">{errorMessage}</span>
-          {:else if genres.length > 0}
-            {#each genres as [genre, percentage]}
-              <div class="bar">
-                <span class="genre">{genre.charAt(0).toUpperCase() + genre.slice(1).toLowerCase()}</span>
-                <div class="bar-inner" style="width: {percentage}%;"></div>
-                <span class="percentage">{percentage}%</span>
-              </div>
-            {/each}
-          {:else}
-            <span class="error-message">Sorry! No data available for this country. Choose another one!</span>
-          {/if}
-        {:else}
-          <span class="error-message">Select a country to see the top genres!</span>
-        {/if}
-      </div>
-    {:else if view === "listen-in"}
-      <h1>Listen in {selected?.properties.name ?? "[selected country]"}</h1>
-    {/if}
-  </div>
+  {/if}
+
+
 
 {#if view == "artists"}
 <div class="input-container">

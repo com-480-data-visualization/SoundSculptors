@@ -13,8 +13,6 @@ header {
     background-color: #719b75; /* Example background color */
     color: #070101; /* Example text color */
     padding: 10px 20px; /* Adjust padding as needed */
-    /* display: flex;
-    justify-content: space-evenly; */
 }
 
 .title-container {
@@ -89,7 +87,8 @@ header {
 .map_container {
     display:flex;
     background-color: rgb(214, 226, 231); 
-    height: 50rem;
+    height: 45rem;
+    overflow: auto;
 }
 
 .loading {
@@ -158,16 +157,16 @@ margin-right: 10px; /* Add margin to separate label from input */
 .next_to_map_container {
 /* Style the container for the genres */
 display: flex;
-flex: 1;  
 flex-direction: column;
 align-items: center;
-justify-content: center;
+/* justify-content: center; */
 gap: 10px;
 border: 1px solid #000;
 width: 26rem;
+height: 30rem;
 margin-top: 10px;
+margin-right: 10px;
 padding: 20px;
-flex-grow: 1;
 background-color: white;
 }
 .radar-container {
@@ -180,6 +179,7 @@ border: 1px solid #000;
 height: 30rem;
 width: 26rem;
 margin-top: 10px;
+margin-right: 10px;
 padding: 20px;
 background-color: white;
 }
