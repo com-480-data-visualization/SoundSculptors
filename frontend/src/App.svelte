@@ -12,8 +12,8 @@ import { color } from 'd3';
 import * as d3 from "d3";
 
 
-// const BASE_URL = "https://ktotam.pythonanywhere.com"
-const BASE_URL = "http://localhost:5001"
+const BASE_URL = "https://ktotam.pythonanywhere.com"
+// const BASE_URL = "http://localhost:5001"
 
 $: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
 $: step = 1 / size;
@@ -34,16 +34,21 @@ let fetcher = (selected) => {
             percentMap = x; 
             Object.keys(percentMap).forEach(key => { colorMap[key] = colors[Math.round((size-1) * percentMap[key])] })
             loadingSimilarity=false;
-        }).catch(err => console.log(err))
+        }).catch(err => {loadingSimilarity = false; console.log(err)})
     }
 }
 $: fetcher(selected)
 let top_ten;
 let song_fetcher = (selected) => {
+    loadingTopSongs = true
     fetch(BASE_URL+"/top_tracks?country_code="+iso2CodesByCountryName[selected?.properties.name.toLowerCase()]).then(x => x.json())
         .then(x => {
+          loadingTopSongs = false
             top_ten = x.slice(0,10)
-        }).catch(err => console.log(err))
+        }).catch(err => {
+        loadingTopSongs = false
+        top_ten = ["error fetching top songs"]  
+        console.log(err)})
 }
 $: song_fetcher(selected) 
 let recolor = (colors) => {
@@ -54,6 +59,7 @@ $: recolor(colors)
 
 // Genres
 $: genre_fetcher(selected) 
+let loadingTopSongs = false
 let loadingGenre = false
 let genres = [];
 let errorMessage = "";
@@ -63,6 +69,7 @@ let genre_fetcher = (selected) => {
         errorMessage = ""; // Reset the error message
         fetch(BASE_URL + "/top_genres?country_code=" + iso2CodesByCountryName[selected?.properties.name.toLowerCase()])
             .then(response => {
+
                 if (!response.ok) {
                     throw new Error("Error fetching top genres");
                 }
@@ -311,14 +318,7 @@ let selectedSmallTitle = "introduction";
         {:else if view === "radar"}
           <Map bind:selected /> 
         {:else if view === "genres"}
-          {#if loadingGenre}
-            <div class="loading">
-              <RingLoader />
-            </div>
-          {/if}
           <Map bind:selected /> 
-        {:else if view === "listen-in"}
-          <Map bind:selected />
         {/if}
       </div>
     
@@ -326,12 +326,19 @@ let selectedSmallTitle = "introduction";
         <div class="next_to_map_container">
           <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
           {#if top_ten}
-            <div class="song-list">
-              {#each top_ten as song, index}
-                <div>{index + 1}. <span class="song-name">{song.name}</span> by {song.artist}</div>
-              {/each}
-            </div>
+            {#if loadingTopSongs}
+              <div >
+                <RingLoader />
+              </div>
+            {:else}
+              <div class="song-list">
+                {#each top_ten as song, index}
+                  <div>{index + 1}. <span class="song-name">{song.name}</span> by {song.artist}</div>
+                {/each}
+              </div>
+            {/if}
           {/if}
+
         </div>
       {:else if view === "radar"}
         <div class="radar-container">
@@ -353,6 +360,11 @@ let selectedSmallTitle = "introduction";
         </div>
       {:else if view === "genres"}
         <div class="next_to_map_container">
+          {#if loadingGenre}
+            <div class="loadgenres">
+              <RingLoader />
+            </div>
+          {:else}
           {#if selected}
             <h2><center>Top genres in {selected?.properties.name}</center></h2>
             {#if errorMessage !== ""}
@@ -371,9 +383,9 @@ let selectedSmallTitle = "introduction";
           {:else}
             <span class="error-message">Select a country to see the top genres!</span>
           {/if}
+          {/if}
         </div>
-      {:else if view === "listen-in"}
-        <h1>Listen in {selected?.properties.name ?? "[selected country]"}</h1>
+      
       {/if}
     </div>
   {/if}
