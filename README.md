@@ -77,8 +77,10 @@ You can access the first version of our website following these steps:
 
 ## Milestone 3 (31st May, 5pm)
 
-🔗 Website [here](add link)
+🔗 Website [here](https://soundsculptors.netlify.app/)
+
 📕 Process book [here](process_book.pdf)
+
 📽 Screen cast [here](https://www.youtube.com/watch?v=uzzclIc422g)
 
 ### Backend 
