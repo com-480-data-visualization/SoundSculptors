@@ -99,6 +99,10 @@ header {
     top: 15rem;
     left: 25rem;
 }
+.loadgenres{
+    position: relative;
+    top: 10rem;
+}
 .gradient {
     height: 1rem;
     width: 20rem;

@@ -54,8 +54,8 @@
 <style>
 	.loading {
         position:relative;
-        top: 15rem;
-        left: 20rem;
+        top: 0.5rem;
+        left: 0rem;
     }
 	.chart-container {
 		display: flex;	
@@ -69,13 +69,14 @@
 </style>
 
 <div class="chart-container">
+	
 	{#if !selected}
 	<span class="error-message">Click on a country to see its music radar!</span>
 	{:else}
 		{#if loading}
-                <div class="loading">
-                    <RingLoader />
-                </div>
+			<div class="loading">
+				<RingLoader />
+			</div>
    		{:else}
 			{#if errorMessage}
 				<span class="error-message">{errorMessage}</span>
