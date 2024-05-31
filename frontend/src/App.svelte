@@ -11,8 +11,6 @@ import * as d3chromatic from 'd3-scale-chromatic';
 import { color } from 'd3';
 import * as d3 from "d3";
 
-
-// const BASE_URL = "https://ktotam.pythonanywhere.com"
 const BASE_URL = "http://localhost:5001"
 
 $: interpolators = (Object.entries(d3chromatic).filter(([key, value]) => key.startsWith('interpolate')))
@@ -281,7 +279,6 @@ let selectedSmallTitle = "introduction";
             <p>Alexander Mueller</p>
             <p>Tymur Tytarenko</p>
         <p>Using data from <a href="https://developer.spotify.com/documentation/web-api" target="_blank">Spotify API</a>.</p>
-        
         <img src={logo} alt="Logo" width="80" height="80">
         <p class="small-text"><strong>Icons from:</strong></p>
         <a href="https://www.flaticon.com/free-icons/music" title="music icons" class="small-text">Music icons created by Freepik - Flaticon</a>
@@ -290,7 +287,7 @@ let selectedSmallTitle = "introduction";
     </div>
 {/if}
 
-{#if view === "country-similarity" || view === "radar" || view === "genres" || view === "listen-in"}
+{#if view === "country-similarity" || view === "radar" || view === "genres" }
     <div class="map_container">
       <div class="map">
         {#if view === "country-similarity"}
@@ -317,11 +314,8 @@ let selectedSmallTitle = "introduction";
             </div>
           {/if}
           <Map bind:selected /> 
-        {:else if view === "listen-in"}
-          <Map bind:selected />
         {/if}
       </div>
-    
       {#if view === "country-similarity"}
         <div class="next_to_map_container">
           <h2><center>Top 10 songs in {selected?.properties.name ?? "the world"}:</center></h2>
@@ -372,12 +366,9 @@ let selectedSmallTitle = "introduction";
             <span class="error-message">Select a country to see the top genres!</span>
           {/if}
         </div>
-      {:else if view === "listen-in"}
-        <h1>Listen in {selected?.properties.name ?? "[selected country]"}</h1>
       {/if}
     </div>
   {/if}
-
 
 
 {#if view == "artists"}

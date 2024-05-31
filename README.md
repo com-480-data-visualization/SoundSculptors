@@ -77,6 +77,10 @@ You can access the first version of our website following these steps:
 
 ## Milestone 3 (31st May, 5pm)
 
+🔗 Website [here](add link)
+📕 Process book [here](process_book.pdf)
+📽 Screen cast [here](https://www.youtube.com/watch?v=uzzclIc422g)
+
 ### Backend 
 The backend project is a Python-based application designed to directly communicate with the [Spotify API](https://developer.spotify.com/documentation). It fetches music-related data, computes various statistics, and aggregates the results to provide insights, which in turn is fed into the front end. 
 
@@ -102,8 +106,8 @@ The frontend is a Svelte based static website. It fetches results from our pytho
 Run ```npm install```
 
 Run ```npm run dev```
-### Contributing
 
+### Contributing
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 

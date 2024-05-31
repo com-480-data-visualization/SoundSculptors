@@ -123,16 +123,17 @@ header {
     margin-right: 20px;
 }
 .graph_container {
-    flex: 3;
+    /* flex: 3; */
     display: flex;
     padding: 20px;
     border: 2px solid #000;
-    width: 50rem;
+    width: 80rem;
     height: 30rem;
     align-items: center;
     justify-content: center;
-    margin-right: 5px;
+    margin-right: 20px;
     margin-top: 20px;
+    margin-left: 20px  ;
 }
 
 .details_container {
@@ -180,11 +181,10 @@ margin-right: 10px; /* Add margin to separate label from input */
 display: flex;
 flex-direction: column;
 align-items: center;
-/* justify-content: center; */
 gap: 10px;
 border: 1px solid #000;
 width: 26rem;
-height: 30rem;
+height: 28rem;
 margin-top: 10px;
 margin-right: 10px;
 padding: 20px;

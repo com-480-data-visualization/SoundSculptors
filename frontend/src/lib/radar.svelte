@@ -38,14 +38,9 @@
             });
 	} 
 	$: fetcher(selected)
-	$: console.log(data)
 	const seriesKey = 'country';
 	const xKey = ['danceability', 'speechiness', 'energy', 'acousticness', 'tempo', 'duration_ms'];
-
-
 	const seriesNames = Object.keys(data[0]).filter(d => d !== seriesKey);
-	console.log(seriesNames); // Print the value of the 'seriesNames' variable
-
 
 
 	data.forEach(d => {
@@ -57,12 +52,6 @@
 
 
 <style>
-	/*
-		The wrapper div needs to have an explicit width and height in CSS.
-		It can also be a flexbox child or CSS grid element.
-		The point being it needs dimensions since the <LayerCake> element will
-		expand to fill it.
-	*/
 	.loading {
         position:relative;
         top: 15rem;
@@ -81,7 +70,7 @@
 
 <div class="chart-container">
 	{#if !selected}
-		<p>Click on a country to see its music radar!</p>
+	<span class="error-message">Click on a country to see its music radar!</span>
 	{:else}
 		{#if loading}
                 <div class="loading">
@@ -89,9 +78,9 @@
                 </div>
    		{:else}
 			{#if errorMessage}
-				<p>{errorMessage}</p>
+				<span class="error-message">{errorMessage}</span>
 			{:else if data.length === 0	}
-					<p>No data available for this country. Choose another one!</p>
+				<span class="error-message">No data available for this country. Please choose another one!</span>
 			{:else}
 				<LayerCake
 					padding={{ top: 40, right: 10, bottom: 7, left: 10 }}
